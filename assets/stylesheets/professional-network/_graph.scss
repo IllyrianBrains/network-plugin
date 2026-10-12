@@ -1,0 +1,116 @@
+.professional-network-graph__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary-medium);
+  font-size: var(--font-down-1);
+}
+
+.professional-network-graph__dot {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.35em;
+  border-radius: 50%;
+
+  &--member {
+    background: #2b6cb0;
+  }
+
+  &--city {
+    background: #2f855a;
+  }
+
+  &--field {
+    background: #c05621;
+  }
+}
+
+.professional-network-graph__status {
+  color: var(--primary-medium);
+}
+
+.professional-network-graph__canvas {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid var(--pn-border);
+  border-radius: var(--ib-radius, 0.75rem);
+}
+
+@media (width <= 800px) {
+  .professional-network-panel__header,
+  .professional-network-editor header,
+  .professional-network-save-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .professional-network-panel__links {
+    margin-top: 0.25rem;
+  }
+
+  .professional-network-panel .professional-network-form-section summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    small {
+      width: 100%;
+      margin-inline-start: 0;
+      text-align: left;
+    }
+  }
+
+  .professional-network-editor {
+    display: block;
+    padding: 1rem;
+  }
+
+  .professional-network-editor > .professional-network-tabs {
+    position: sticky;
+    top: var(--header-offset, 0);
+    flex-direction: row;
+    gap: 0.25rem;
+    overflow-x: auto;
+    padding: 0.75rem 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--pn-border);
+    scrollbar-width: thin;
+
+    button {
+      width: auto;
+      flex: 0 0 auto;
+      border-radius: 99px;
+      text-align: center;
+    }
+  }
+
+  .professional-network-service-row {
+    grid-template-columns: 1fr;
+  }
+
+  .professional-network-form-section__body:not(.professional-network-services) {
+    grid-template-columns: 1fr;
+  }
+
+  .professional-network-field.is-wide {
+    grid-column: auto;
+  }
+
+  .professional-network-progress {
+    flex-basis: auto;
+
+    span {
+      text-align: left;
+    }
+  }
+
+  .professional-network-save-bar {
+    margin-inline: -1rem;
+    margin-bottom: -1rem;
+  }
+}
+
+.user-navigation-primary .professional-network-user-tab {
+  order: -1;
+}

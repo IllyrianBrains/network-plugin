@@ -1,0 +1,28 @@
+.professional-network-panel .professional-network-form-section {
+  overflow: hidden;
+  border-radius: var(--ib-radius, 0.75rem);
+  box-shadow: 0 0.15rem 0.65rem rgb(0 0 0 / 4%);
+
+  summary {
+    gap: 0.75rem;
+    min-height: 1.5rem;
+    padding: 1rem 1.25rem;
+
+    span {
+      font-family: var(--pn-display-font);
+      font-size: var(--font-up-1);
+      letter-spacing: -0.01em;
+    }
+
+    small {
+      margin-inline-start: auto;
+      text-align: right;
+    }
+  }
+}
+
+.professional-network-panel__sections
+  > .professional-network-form-section
+  > .professional-network-list {
+  padding: 1rem 1.25rem 1.25rem;
+}

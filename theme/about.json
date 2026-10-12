@@ -1,0 +1,21 @@
+{
+  "name": "Illyrian Brains Community",
+  "about_url": "https://illyrianbrains.org/",
+  "authors": "Illyrian Brains",
+  "theme_version": "1.0.0",
+  "minimum_discourse_version": "3.2.0",
+  "color_schemes": {
+    "Illyrian Brains": {
+      "primary": "17181d",
+      "secondary": "ffffff",
+      "tertiary": "744761",
+      "quaternary": "5d374d",
+      "header_background": "1c1d22",
+      "header_primary": "ffffff",
+      "highlight": "f0e6ec",
+      "danger": "b42318",
+      "success": "246247",
+      "love": "a43f69"
+    }
+  }
+}

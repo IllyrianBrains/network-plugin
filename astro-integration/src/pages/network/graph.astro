@@ -1,0 +1,88 @@
+---
+export const prerender = false;
+const base = import.meta.env.DISCOURSE_URL;
+const websiteKey = import.meta.env.PROFESSIONAL_NETWORK_WEBSITE_KEY || "default";
+let nodes: any[] = [];
+let edges: any[] = [];
+if (base) {
+  const target = new URL("/professional-network/network-graph.json", base);
+  target.searchParams.set("website_key", websiteKey);
+  const response = await fetch(target, { headers: { Accept: "application/json" } });
+  if (response.ok) {
+    const result = await response.json();
+    nodes = result.nodes || [];
+    edges = result.edges || [];
+  }
+}
+const elements = [
+  ...nodes.map((n: any) => ({ data: { id: n.id, label: n.label, type: n.type } })),
+  ...edges.map((e: any) => ({ data: { source: e.source, target: e.target } })),
+];
+// Node labels come from member-supplied profile data (city, field of expertise, name).
+// Escape "<" so a label containing a literal "</script>" cannot break out of the
+// embedding <script type="application/json"> tag below.
+const elementsJson = JSON.stringify(elements).replace(/</g, "\\u003c");
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Member network · Professional network</title>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+</head>
+<body style="margin:0;font:16px system-ui">
+  <main style="max-width:1100px;margin:0 auto;padding:1.5rem">
+    <h1 style="margin-bottom:0.25rem">Member network</h1>
+    <p style="color:#555;margin-top:0">
+      {nodes.length} nodes, {edges.length} edges. Members connect to the cities and fields of
+      expertise on their public profile.
+    </p>
+    <p style="display:flex;gap:1.25rem;font-size:0.9rem;color:#333">
+      <span><span style="display:inline-block;width:0.8em;height:0.8em;border-radius:50%;background:#2b6cb0;margin-right:0.35em"></span>Member</span>
+      <span><span style="display:inline-block;width:0.8em;height:0.8em;border-radius:50%;background:#2f855a;margin-right:0.35em"></span>City</span>
+      <span><span style="display:inline-block;width:0.8em;height:0.8em;border-radius:50%;background:#c05621;margin-right:0.35em"></span>Field of expertise</span>
+    </p>
+    {nodes.length === 0 && <p>No public profile data yet, or <code>DISCOURSE_URL</code> is not configured.</p>}
+    <div id="cy" style="width:100%;height:70vh;border:1px solid #ddd;border-radius:8px"></div>
+  </main>
+  <script is:inline type="application/json" id="graph-elements" set:html={elementsJson} />
+  <script>
+    const elements = JSON.parse(document.getElementById("graph-elements")!.textContent || "[]");
+    const colors: Record<string, string> = { member: "#2b6cb0", city: "#2f855a", field: "#c05621" };
+
+    const cy = (window as any).cytoscape({
+      container: document.getElementById("cy"),
+      elements,
+      style: [
+        {
+          selector: "node",
+          style: {
+            label: "data(label)",
+            "font-size": 9,
+            color: "#222",
+            "text-valign": "bottom",
+            "text-margin-y": 4,
+            "background-color": (el: any) => colors[el.data("type")] || "#888",
+            width: (el: any) => (el.data("type") === "member" ? 16 : 22),
+            height: (el: any) => (el.data("type") === "member" ? 16 : 22),
+          },
+        },
+        { selector: "edge", style: { width: 1, "line-color": "#ccc", "curve-style": "haystack" } },
+        { selector: "node:selected", style: { "border-width": 2, "border-color": "#000" } },
+      ],
+      layout: { name: "cose", animate: false, nodeRepulsion: 9000, idealEdgeLength: 70 },
+      wheelSensitivity: 0.2,
+    });
+
+    cy.on("tap", "node", (evt: any) => {
+      const node = evt.target;
+      cy.elements().removeClass("faded");
+      const neighborhood = node.closedNeighborhood();
+      cy.elements().not(neighborhood).addClass("faded");
+    });
+    cy.on("tap", (evt: any) => {
+      if (evt.target === cy) cy.elements().removeClass("faded");
+    });
+    cy.style().selector(".faded").style({ opacity: 0.15 }).update();
+  </script>
+</body>
+</html>

@@ -1,3 +1,7 @@
+dev/discourse/
+illyrian-brains*
+.claude
+
 *.gem
 *.rbc
 /.config

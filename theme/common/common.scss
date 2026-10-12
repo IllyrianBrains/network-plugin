@@ -1,0 +1,274 @@
+// Illyrian Brains community theme
+// Adapted from ../website/src/styles/base.css. Keep the design tokens in sync,
+// but target Discourse's semantic classes rather than Astro page markup.
+
+@import "responsive";
+
+:root {
+  --ib-ink: #17181d;
+  --ib-paper: #fff;
+  --ib-accent: #744761;
+  --ib-accent-dark: #5d374d;
+  --ib-accent-soft: #f6eef3;
+  --ib-line: #dedee1;
+  --ib-soft: #f6f5f5;
+  --ib-muted: #66676c;
+  --ib-night: #1c1d22;
+  --ib-night-soft: #222329;
+  --ib-display-font:
+    "Gill Sans MT", "Gill Sans", Calibri, "Trebuchet MS", var(--font-family);
+  --ib-max-width: 1180px;
+  --ib-radius: 10px;
+  --ib-shadow: 0 12px 34px rgb(23 24 29 / 8%);
+  --ib-network-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='88' viewBox='0 0 280 88'%3E%3Cg fill='none' stroke='%23c9aebd' stroke-opacity='.22' stroke-width='1'%3E%3Cpath d='M12 58 58 22l51 42 53-38 48 35 58-44'/%3E%3Cpath d='m58 22 24 55 27-13 30 17 23-55 24 8 24 27'/%3E%3C/g%3E%3Cg fill='%23c9aebd' fill-opacity='.32'%3E%3Ccircle cx='12' cy='58' r='2'/%3E%3Ccircle cx='58' cy='22' r='2.5'/%3E%3Ccircle cx='82' cy='77' r='2'/%3E%3Ccircle cx='109' cy='64' r='2.5'/%3E%3Ccircle cx='139' cy='81' r='2'/%3E%3Ccircle cx='162' cy='26' r='2.5'/%3E%3Ccircle cx='186' cy='34' r='2'/%3E%3Ccircle cx='210' cy='61' r='2.5'/%3E%3Ccircle cx='268' cy='17' r='2'/%3E%3C/g%3E%3C/svg%3E");
+
+  --d-max-width: var(--ib-max-width);
+  --d-border-radius: 4px;
+  --d-button-border-radius: 4px;
+  --d-input-border-radius: 9px;
+  --d-nav-pill-border-radius: 8px;
+}
+
+html {
+  scroll-padding-top: 88px;
+}
+
+body {
+  color: var(--primary);
+  background:
+    linear-gradient(rgb(23 24 29 / 2.2%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(23 24 29 / 2.2%) 1px, transparent 1px),
+    var(--secondary);
+  background-size: 28px 28px;
+}
+
+h1,
+h2,
+h3,
+h4,
+.fancy-title,
+.topic-list .main-link a.title,
+.category-name {
+  font-family: var(--ib-display-font);
+  letter-spacing: -0.015em;
+}
+
+a {
+  text-underline-offset: 0.18em;
+}
+
+// The website header is dark, slightly translucent, and carries a quiet
+// network diagram. This keeps native Discourse controls and behavior intact.
+.d-header-wrap {
+  .d-header {
+    height: 72px;
+    border-bottom: 1px solid rgb(255 255 255 / 9%);
+    background:
+      var(--ib-network-pattern) repeat-x center / 280px 88px,
+      linear-gradient(112deg, #26212a 0%, #191b21 48%, #29202a 100%);
+    box-shadow:
+      0 14px 34px rgb(7 7 10 / 24%),
+      0 3px 10px rgb(7 7 10 / 22%),
+      inset 0 -1px rgb(255 255 255 / 6%);
+  }
+
+  .d-header-icons .icon,
+  .header-dropdown-toggle .btn {
+    border-radius: 8px;
+    color: var(--header_primary);
+
+    &:hover,
+    &:focus-visible {
+      background: rgb(255 255 255 / 10%);
+      color: var(--header_primary);
+    }
+  }
+
+  .d-header-icons .d-icon {
+    color: currentcolor;
+  }
+}
+
+.d-header #site-logo {
+  max-height: 42px;
+}
+
+.wrap {
+  max-width: var(--ib-max-width);
+}
+
+#main-outlet {
+  padding-top: clamp(1.5rem, 4vw, 3rem);
+}
+
+// Navigation mirrors the website's small, deliberate workspace controls.
+.nav-pills > li > a,
+.nav-pills > li button,
+.navigation-controls .btn {
+  border-radius: 8px;
+  font-size: var(--font-down-1);
+  font-weight: 650;
+}
+
+.nav-pills > li > a.active,
+.nav-pills > li > a[aria-current="page"],
+.nav-pills > li button.active {
+  background: linear-gradient(135deg, var(--ib-accent-dark), #7b5069);
+  color: #fff;
+  box-shadow: 0 7px 16px rgb(93 55 77 / 20%);
+}
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  border-color: var(--ib-accent-dark);
+  background: var(--ib-accent);
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: var(--ib-accent-dark);
+}
+
+.btn-default {
+  border-color: var(--primary-low);
+  background: var(--secondary);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--tertiary);
+    background: var(--tertiary-very-low);
+    color: var(--tertiary-high);
+  }
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+textarea,
+select,
+.select-kit .select-kit-header {
+  border-color: var(--primary-low-mid);
+  border-radius: 9px;
+  background: var(--secondary);
+
+  &:focus,
+  &:focus-visible {
+    border-color: var(--tertiary);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgb(116 71 97 / 10%);
+  }
+}
+
+// Main topic and category surfaces borrow the restrained cards used by the
+// directory and member workspace on the website.
+.topic-list,
+.category-list,
+.latest-topic-list,
+.top-topic-list,
+.user-main .about,
+.user-content,
+.boxed.white,
+.groups-boxes .group-box,
+.search-container .search-advanced {
+  border: 1px solid var(--primary-low);
+  border-radius: var(--ib-radius);
+  background: var(--secondary);
+  box-shadow: 0 1px 2px rgb(23 24 29 / 4%);
+}
+
+.topic-list {
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    color: var(--primary-medium);
+    background: var(--primary-very-low);
+    font-size: var(--font-down-2);
+    font-weight: 750;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .topic-list-item:hover td {
+    background: var(--tertiary-very-low);
+  }
+
+  .main-link a.title {
+    font-size: var(--font-up-1);
+    font-weight: 600;
+  }
+}
+
+.category-list .category-name {
+  font-size: var(--font-up-2);
+  font-weight: 600;
+}
+
+.badge-wrapper.bullet span.badge-category,
+.discourse-tag {
+  border-radius: 999px;
+  font-weight: 650;
+}
+
+.topic-post article.boxed .row,
+.small-action,
+.post-stream .topic-post .topic-body {
+  border-color: var(--primary-low);
+}
+
+.topic-body {
+  border-radius: 0 var(--ib-radius) var(--ib-radius) 0;
+  background: var(--secondary);
+}
+
+.topic-map,
+.quote,
+aside.onebox,
+.user-card,
+.group-card {
+  border-color: var(--primary-low);
+  border-radius: var(--ib-radius);
+  box-shadow: var(--ib-shadow);
+}
+
+.sidebar-wrapper {
+  background: rgb(246 245 245 / 88%);
+  backdrop-filter: blur(14px);
+}
+
+.sidebar-section-link-wrapper .sidebar-section-link {
+  border-radius: 8px;
+
+  &.active,
+  &:hover {
+    background: var(--tertiary-very-low);
+    color: var(--tertiary-high);
+  }
+}
+
+.composer-popup,
+#reply-control {
+  border-top: 3px solid var(--tertiary);
+  box-shadow: 0 -15px 40px rgb(23 24 29 / 14%);
+}
+
+.modal-inner-container {
+  overflow: hidden;
+  border: 1px solid var(--primary-low);
+  border-radius: 14px;
+  box-shadow: 0 30px 90px rgb(0 0 0 / 28%);
+}
+
+*:focus-visible {
+  outline-color: var(--tertiary);
+  outline-offset: 2px;
+}

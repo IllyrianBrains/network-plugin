@@ -1,0 +1,100 @@
+# Local-only Discourse development stack. Do not deploy this compose file to production.
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_USER: discourse
+      POSTGRES_PASSWORD: discourse_dev_only
+      POSTGRES_DB: discourse_development
+    volumes:
+      - discourse_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U discourse -d discourse_development"]
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 20
+
+  web:
+    image: discourse/discourse_dev:release
+    working_dir: /src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgresql://discourse:discourse_dev_only@postgres:5432/discourse_development
+      DISCOURSE_DB_HOST: postgres
+      DISCOURSE_DB_PORT: "5432"
+      DISCOURSE_DB_USERNAME: discourse
+      DISCOURSE_DB_PASSWORD: discourse_dev_only
+      DISCOURSE_DB_NAME: discourse_development
+      DISCOURSE_REDIS_HOST: redis
+      DISCOURSE_REDIS_PORT: "6379"
+      DISCOURSE_HOSTNAME: localhost
+      DISCOURSE_DEVELOPER_EMAILS: admin@example.test
+      # Keep the all-in-one local development container within a modest memory
+      # budget. The separate sidekiq profile remains available when needed.
+      UNICORN_WORKERS: "1"
+      UNICORN_SIDEKIQS: "0"
+      UNICORN_BIND_ALL: "1"
+      BUNDLE_PATH: /usr/local/bundle
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: "*"
+    volumes:
+      - ./dev/discourse:/src
+      - ./:/src/plugins/discourse-professional-network
+      - discourse_bundle:/usr/local/bundle
+    # The plugin repository contains the host's Discourse checkout under
+    # dev/discourse. Hide that nested copy so Rails does not watch core assets
+    # twice through /src and /src/plugins/discourse-professional-network.
+    tmpfs:
+      - /src/plugins/discourse-professional-network/dev/discourse
+    ports:
+      - "127.0.0.1:3000:3000"
+    # Current Discourse development builds require both Rails and the frontend
+    # asset watcher. bin/dev (via pnpm dev) starts and supervises both.
+    command: bash -lc 'rm -f frontend/discourse/dist/manifest/build.json && exec pnpm dev'
+
+  sidekiq:
+    image: discourse/discourse_dev:release
+    working_dir: /src
+    profiles: ["jobs"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgresql://discourse:discourse_dev_only@postgres:5432/discourse_development
+      DISCOURSE_DB_HOST: postgres
+      DISCOURSE_DB_PORT: "5432"
+      DISCOURSE_DB_USERNAME: discourse
+      DISCOURSE_DB_PASSWORD: discourse_dev_only
+      DISCOURSE_DB_NAME: discourse_development
+      DISCOURSE_REDIS_HOST: redis
+      DISCOURSE_REDIS_PORT: "6379"
+      BUNDLE_PATH: /usr/local/bundle
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: "*"
+    volumes:
+      - ./dev/discourse:/src
+      - ./:/src/plugins/discourse-professional-network
+      - discourse_bundle:/usr/local/bundle
+    tmpfs:
+      - /src/plugins/discourse-professional-network/dev/discourse
+    command: bash -lc 'bundle exec sidekiq -C config/sidekiq.yml'
+
+volumes:
+  discourse_pgdata:
+  discourse_bundle:

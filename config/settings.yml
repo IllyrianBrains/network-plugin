@@ -1,0 +1,10 @@
+plugins:
+  professional_network_enabled:
+    default: true
+    client: false
+  professional_network_category_id:
+    default: 0
+    type: integer
+  professional_network_max_pdf_mb:
+    default: 5
+    type: integer

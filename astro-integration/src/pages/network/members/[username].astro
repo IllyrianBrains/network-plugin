@@ -1,0 +1,83 @@
+---
+export const prerender = false;
+const username = Astro.params.username || "";
+const base = import.meta.env.DISCOURSE_URL;
+let result: any = null;
+if (base && /^[a-zA-Z0-9_.-]{1,80}$/.test(username)) {
+  const response = await fetch(new URL(`/professional-network/profiles/${encodeURIComponent(username)}.json`, base));
+  if (response.ok) result = await response.json();
+}
+const p = result?.profile;
+const aspirations = result?.aspirations;
+let activity: any[] = [];
+let related: any[] = [];
+if (p && base) {
+  const response = await fetch(new URL(`/professional-network/profiles/${encodeURIComponent(username)}/activity.json`, base));
+  if (response.ok) activity = (await response.json()).items || [];
+
+  const relatedResponse = await fetch(new URL(`/professional-network/profiles/${encodeURIComponent(username)}/related.json`, base));
+  if (relatedResponse.ok) related = (await relatedResponse.json()).profiles || [];
+}
+
+const MENTORING_LABELS: Record<string, string> = {
+  mentor_connection: "Connect with a mentor",
+  career_coaching: "Career coaching / advice",
+  mentoring_opportunity: "Open to mentoring others",
+};
+const mentoringLabels = (aspirations?.mentoring_interests || []).map((value: string) => MENTORING_LABELS[value] || value);
+const MENTORING_TYPE_LABELS: Record<string, string> = {
+  project_guidance: "Project-oriented guidance",
+  career_orientation: "Career orientation",
+  technical_skills: "Technical skill teaching",
+  workshops: "Workshops",
+};
+const mentoringWantedLabels = (aspirations?.mentoring_wanted_types || []).map((value: string) => MENTORING_TYPE_LABELS[value] || value);
+const mentoringProvidedLabels = (aspirations?.mentoring_provided_types || []).map((value: string) => MENTORING_TYPE_LABELS[value] || value);
+
+const AVAILABILITY_LABELS: Record<string, string> = {
+  full_time: "Available full-time",
+  part_time: "Available part-time / side projects",
+  not_available: "Not currently available",
+};
+const availabilityLabel = AVAILABILITY_LABELS[p?.availability];
+---
+<html lang="en"><head><meta charset="utf-8"/><title>{p?.name || username} · Professional profile</title></head><body>
+<main style="max-width:850px;margin:3rem auto;font:16px system-ui;line-height:1.5;padding:1rem">
+{p ? <><h1>{p.name || username}{p.pronouns && <small> ({p.pronouns})</small>}</h1><p>{p.headline}</p><p>{p.location}</p>
+{(p.open_to_work || p.hiring) && <p>{p.open_to_work && <span>Open to work</span>}{p.open_to_work && p.hiring && " · "}{p.hiring && <span>Hiring</span>}</p>}
+{(availabilityLabel || p.open_to_consulting) && <p>{[availabilityLabel, p.open_to_consulting ? "Open to consulting" : null].filter(Boolean).join(" · ")}</p>}
+{(p.freelance_rate || p.minimum_project_size) && <p>{[p.freelance_rate ? `Rate: ${p.freelance_rate}` : null, p.minimum_project_size ? `Minimum project: ${p.minimum_project_size}` : null].filter(Boolean).join(" · ")}</p>}
+{p.linkedin_url && <a href={p.linkedin_url} rel="noopener noreferrer">LinkedIn profile</a>}
+{p.github_url && <a href={p.github_url} rel="noopener noreferrer">GitHub</a>}
+{p.twitter_url && <a href={p.twitter_url} rel="noopener noreferrer">X / Twitter</a>}
+{(p.services || []).length > 0 && <><h2>Services offered</h2>{p.services.map((s: any) => <article><h3>{s.title}</h3>{s.rate && <p>{s.rate}</p>}<p>{s.description}</p></article>)}</>}
+<h2>Experience</h2>{(p.experience || []).map((e: any) => <article><h3>{e.role}</h3><p>{e.organization} · {e.dates}</p><p>{e.description}</p></article>)}
+<h2>Education</h2>{(p.education || []).map((e: any) => <p><strong>{e.institution}</strong> — {e.degree}</p>)}
+<h2>Skills</h2><p>{(p.skills || []).join(" · ")}</p>
+{(p.volunteering || []).length > 0 && <><h2>Volunteering</h2>{p.volunteering.map((v: any) => <article><h3>{v.role}</h3><p>{v.organization} · {v.cause}</p></article>)}</>}
+{(p.honors || []).length > 0 && <><h2>Honors & awards</h2><ul>{p.honors.map((h: any) => <li>{h.title}{h.issuer ? ` — ${h.issuer}` : ""}{h.year ? ` (${h.year})` : ""}</li>)}</ul></>}
+{(aspirations?.field || mentoringLabels.length > 0 || mentoringWantedLabels.length > 0 || mentoringProvidedLabels.length > 0) && <>
+  <h2>Aspirations and mentoring</h2>
+  {aspirations?.field && <p>Aiming for: {aspirations.field}{aspirations.subfield ? ` (${aspirations.subfield})` : ""}</p>}
+  {mentoringLabels.length > 0 && <p>{mentoringLabels.join(" · ")}</p>}
+  {mentoringWantedLabels.length > 0 && <p>Mentoring wanted: {mentoringWantedLabels.join(" · ")}</p>}
+  {mentoringProvidedLabels.length > 0 && <p>Mentoring provided: {mentoringProvidedLabels.join(" · ")}</p>}
+  {aspirations?.note && <p>{aspirations.note}</p>}
+  {(aspirations?.business_interests || []).length > 0 &&
+    <p>Business interests: {aspirations.business_interests.join(" · ")}</p>}
+</>}
+{related.length > 0 && <>
+  <h2>Suggested connections</h2>
+  <ul>{related.map((match: any) => <li>
+    <p><a href={`/network/members/${encodeURIComponent(match.username)}`}>{match.profile?.name || match.username}</a></p>
+    <small>{(match.reasons || []).join(" · ")}</small>
+  </li>)}</ul>
+</>}
+<h2>Posts and discussions</h2>
+{activity.length ? <ul>{activity.map((item: any) => <li>
+  <small>{item.kind === "linkedin_share" ? "Shared from LinkedIn" : "Discourse discussion"}</small>
+  <p><a href={new URL(`/t/${item.slug}/${item.topic_id}`, base).toString()}>{item.title}</a></p>
+  {item.source_url && <a href={item.source_url} rel="noopener noreferrer">Original LinkedIn post</a>}
+</li>)}</ul> : <p>No visible activity yet.</p>}
+</> : <p>This profile is not available or is private.</p>}
+</main></body></html>
