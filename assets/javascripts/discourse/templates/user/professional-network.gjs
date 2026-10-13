@@ -1,4 +1,4 @@
-import ProfessionalNetworkPanel from "../../components/professional-network-panel";
+import ProfessionalNetworkPanel from "../../components/panel";
 
 export default <template>
   <div class="user-content professional-network-user-profile" id="user-content">

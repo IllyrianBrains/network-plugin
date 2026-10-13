@@ -1,3 +1,3 @@
-import ProfessionalNetworkGraph from "../components/professional-network-graph";
+import ProfessionalNetworkGraph from "../components/graph";
 
 export default <template><ProfessionalNetworkGraph /></template>

@@ -18,6 +18,9 @@ module ProfessionalNetwork
     ].freeze
     RETURN_PLANS = %w[yes maybe no already_there].freeze
     RETURN_COUNTRIES = %w[albania kosovo].freeze
+    RECOMMENDATION_PRIORITIES = %w[
+      opportunities mentoring career help location background
+    ].freeze
 
     # Human-readable labels for the coded values above, used wherever a
     # match reason needs to say something friendlier than "cofounder_intro".
@@ -94,6 +97,11 @@ module ProfessionalNetwork
       Array(user.custom_fields["pn_return_countries"])
     end
 
+    def recommendation_priorities
+      stored = Array(user.custom_fields["pn_recommendation_priorities"]).map(&:to_s)
+      stored.sort == RECOMMENDATION_PRIORITIES.sort ? stored : RECOMMENDATION_PRIORITIES
+    end
+
     def seeking_mentoring?
       mentoring_preferences.seeking?
     end
@@ -123,7 +131,11 @@ module ProfessionalNetwork
     # Only for the member themselves or staff -- never merge this into a
     # response that anyone else can see.
     def private_h
-      { "return_plan" => return_plan, "return_countries" => return_countries.presence }.compact
+      {
+        "return_plan" => return_plan,
+        "return_countries" => return_countries.presence,
+        "recommendation_priorities" => recommendation_priorities,
+      }.compact
     end
 
     # Applies a normalized attribute hash (string keys matching the readers
@@ -146,6 +158,8 @@ module ProfessionalNetwork
           user.custom_fields["pn_return_plan"] = value.presence
         when "return_countries"
           user.custom_fields["pn_return_countries"] = Array(value).map(&:to_s).uniq
+        when "recommendation_priorities"
+          user.custom_fields["pn_recommendation_priorities"] = Array(value).map(&:to_s)
         end
       end
     end
@@ -164,6 +178,10 @@ module ProfessionalNetwork
       end
       if attrs.key?("return_countries") && (Array(attrs["return_countries"]).map(&:to_s) - RETURN_COUNTRIES).any?
         raise Discourse::InvalidParameters.new(:return_countries)
+      end
+      if attrs.key?("recommendation_priorities") &&
+          Array(attrs["recommendation_priorities"]).map(&:to_s).sort != RECOMMENDATION_PRIORITIES.sort
+        raise Discourse::InvalidParameters.new(:recommendation_priorities)
       end
       raise Discourse::InvalidParameters.new(:subfield) if attrs["subfield"].to_s.length > SUBFIELD_LIMIT
       raise Discourse::InvalidParameters.new(:note) if attrs["note"].to_s.length > NOTE_LIMIT

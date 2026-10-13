@@ -8,10 +8,10 @@ export const GET: APIRoute = async ({ url }) => {
   // ?map=1 proxies the aggregated map endpoint used by harta.astro / CommunityMap.astro.
   const slug = url.searchParams.get("slug");
   const path = url.searchParams.get("map")
-    ? "/professional-network/cities/map.json"
+    ? "/network/cities/map.json"
     : slug
-      ? `/professional-network/cities/${encodeURIComponent(slug)}.json`
-      : "/professional-network/cities.json";
+      ? `/network/cities/${encodeURIComponent(slug)}.json`
+      : "/network/cities.json";
   const target = new URL(path, base);
   target.searchParams.set("website_key", websiteKey);
   if (!slug && !url.searchParams.get("map")) {

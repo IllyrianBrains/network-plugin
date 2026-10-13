@@ -36,4 +36,62 @@ RSpec.describe ProfessionalNetwork::PdfParser do
       "end_year" => 2009,
     )
   end
+
+  it "does not let a wrapped education title split into bogus entries" do
+    sample = <<~TEXT
+      Sample Person
+      Page 1 of 1
+      Education
+      Lehman College of the City
+      University of New York
+      Bachelor of Arts (BA), Economics (2011 - 2015)
+    TEXT
+    parsed = described_class.parse(sample)
+    expect(parsed["education"]).to contain_exactly(
+      hash_including(
+        "school" => "Lehman College of the City University of New York",
+        "degree" => "Bachelor of Arts (BA), Economics",
+        "start_year" => 2011,
+        "end_year" => 2015,
+      ),
+    )
+  end
+
+  it "parses a main-body Licenses & Certifications section without wrapped titles splitting into bogus entries" do
+    sample = <<~TEXT
+      Sample Person
+      Page 1 of 1
+      Licenses & Certifications
+      AWS Certified Solutions
+      Architect - Associate
+      Amazon Web Services
+      Issued March 2022
+      Credential ID ABC123
+      PMP
+      Project Management Institute
+      Issued June 2019
+    TEXT
+    parsed = described_class.parse(sample)
+    expect(parsed["certifications"]).to contain_exactly(
+      "AWS Certified Solutions Architect - Associate · Amazon Web Services",
+      "PMP · Project Management Institute",
+    )
+  end
+
+  it "stops an unparsed heading like Honors & Awards from leaking into Education" do
+    sample = <<~TEXT
+      Sample Person
+      Page 1 of 1
+      Education
+      University of Tirana
+      Master of Science (MSc), Finance (2007 - 2009)
+      Honors & Awards
+      Dean's List
+      Fall 2021
+    TEXT
+    parsed = described_class.parse(sample)
+    expect(parsed["education"]).to contain_exactly(
+      hash_including("school" => "University of Tirana"),
+    )
+  end
 end

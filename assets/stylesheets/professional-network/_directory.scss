@@ -32,19 +32,39 @@
 
 .professional-network-directory__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
+}
+
+.professional-network-search-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .d-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--primary-medium);
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding-left: 2.25rem;
+    box-sizing: border-box;
+  }
 }
 
 .professional-network-chip--removable {
   cursor: pointer;
 
-  span {
-    margin-left: 0.3rem;
+  .d-icon {
+    margin-right: 0.3rem;
     color: var(--primary-medium);
   }
 
-  &:hover span {
+  &:hover .d-icon {
     color: var(--danger);
   }
 }
@@ -92,7 +112,12 @@
   thead {
     position: sticky;
     z-index: 1;
-    top: var(--header-offset, 0);
+    // table-wrap's overflow-x: auto forces its overflow-y to compute as
+    // auto too, making it (not the page) the nearest scrolling ancestor
+    // for this sticky thead -- so the offset is measured from the wrap's
+    // own top, not the viewport. var(--header-offset) here would push the
+    // header down by that amount on every render, straight into row 1.
+    top: 0;
     background: var(--secondary);
   }
 
@@ -191,6 +216,11 @@
   font-size: var(--font-down-1);
   font-weight: 600;
   white-space: nowrap;
+}
+
+.professional-network-directory__badge--unpublished {
+  background: var(--primary-low);
+  color: var(--primary-medium);
 }
 
 .professional-network-directory__detail {

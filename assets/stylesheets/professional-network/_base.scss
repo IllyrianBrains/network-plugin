@@ -1,7 +1,9 @@
 .professional-network-panel,
 .professional-network-editor,
 .professional-network-graph,
-.professional-network-directory {
+.professional-network-recommendations,
+.professional-network-directory,
+.professional-network-share-page {
   // The companion theme defines the --ib-* tokens. These fallbacks preserve
   // the panel in installations which use a stock Discourse theme.
   --pn-accent: var(--ib-accent, var(--tertiary));
@@ -14,6 +16,13 @@
   color: var(--primary);
 }
 
+.professional-network-share-page {
+  padding: 1.5rem;
+  border: 1px solid var(--pn-border);
+  border-radius: 0.75rem;
+  background: var(--secondary);
+}
+
 // The community sidebar link to the profile editor reuses Discourse's
 // generic FontAwesome icon via `icon: "linkedin"`, which is otherwise
 // rendered in whatever color surrounds it (SVG icons use fill: currentcolor).
@@ -22,6 +31,7 @@
 a[data-link-name="professional-network-profile"] .prefix-icon {
   color: #0a66c2;
 }
+
 
 .professional-network-panel {
   display: grid;

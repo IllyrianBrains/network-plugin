@@ -5,7 +5,7 @@ const websiteKey = import.meta.env.PROFESSIONAL_NETWORK_WEBSITE_KEY || "default"
 let nodes: any[] = [];
 let edges: any[] = [];
 if (base) {
-  const target = new URL("/professional-network/network-graph.json", base);
+  const target = new URL("/network/network-graph.json", base);
   target.searchParams.set("website_key", websiteKey);
   const response = await fetch(target, { headers: { Accept: "application/json" } });
   if (response.ok) {

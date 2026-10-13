@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module ProfessionalNetwork
-  # Serves the Ember app shell for /professional-network/profile, the
+  # Serves the Ember app shell for /network/profile, the
   # member-facing LinkedIn import / mentoring / aspirations editor.
   #
   # #show's body never actually runs for a normal browser page load:

@@ -4,7 +4,7 @@ const username = Astro.params.username || "";
 const base = import.meta.env.DISCOURSE_URL;
 let result: any = null;
 if (base && /^[a-zA-Z0-9_.-]{1,80}$/.test(username)) {
-  const response = await fetch(new URL(`/professional-network/profiles/${encodeURIComponent(username)}.json`, base));
+  const response = await fetch(new URL(`/network/profiles/${encodeURIComponent(username)}.json`, base));
   if (response.ok) result = await response.json();
 }
 const p = result?.profile;
@@ -12,10 +12,10 @@ const aspirations = result?.aspirations;
 let activity: any[] = [];
 let related: any[] = [];
 if (p && base) {
-  const response = await fetch(new URL(`/professional-network/profiles/${encodeURIComponent(username)}/activity.json`, base));
+  const response = await fetch(new URL(`/network/profiles/${encodeURIComponent(username)}/activity.json`, base));
   if (response.ok) activity = (await response.json()).items || [];
 
-  const relatedResponse = await fetch(new URL(`/professional-network/profiles/${encodeURIComponent(username)}/related.json`, base));
+  const relatedResponse = await fetch(new URL(`/network/profiles/${encodeURIComponent(username)}/related.json`, base));
   if (relatedResponse.ok) related = (await relatedResponse.json()).profiles || [];
 }
 

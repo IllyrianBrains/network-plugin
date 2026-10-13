@@ -8,6 +8,7 @@ readonly source_roots=(
   assets
   astro-integration/src
   db
+  lib
   spec
   theme
 )

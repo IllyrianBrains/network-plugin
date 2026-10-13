@@ -12,4 +12,19 @@ RSpec.describe ProfessionalNetwork::City do
       expect(described_class.normalize_name(nil)).to eq("")
     end
   end
+
+  it "requires latitude and longitude together" do
+    city = described_class.new(website_key: "default", name: "Tirana", lat: 41)
+
+    expect(city).not_to be_valid
+    expect(city.errors[:base]).to include("latitude and longitude must be provided together")
+  end
+
+  it "rejects coordinates outside valid geographic ranges" do
+    city = described_class.new(website_key: "default", name: "Tirana", lat: 91, lng: 181)
+
+    expect(city).not_to be_valid
+    expect(city.errors[:lat]).to be_present
+    expect(city.errors[:lng]).to be_present
+  end
 end

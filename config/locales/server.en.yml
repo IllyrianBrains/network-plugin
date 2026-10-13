@@ -1,0 +1,5 @@
+en:
+  site_settings:
+    professional_network_enabled: "Enable the professional network plugin (LinkedIn PDF profile imports, directory, city pages, and network graph)."
+    professional_network_category_id: "Category where members may create topics tied to the professional network plugin."
+    professional_network_max_pdf_mb: "Maximum size, in megabytes, of a LinkedIn PDF profile a member may upload for import."

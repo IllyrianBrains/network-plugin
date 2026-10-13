@@ -10,7 +10,7 @@ module ProfessionalNetwork
     end
 
     def profiles
-      Profile.published.for_website(@city.website_key).includes(:user)
+      Profile.published.people.for_website(@city.website_key).includes(:user)
         .where("lower(data->>'city') = ANY (ARRAY[?]::text[])", @city.names)
     end
   end

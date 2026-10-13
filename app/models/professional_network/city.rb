@@ -9,6 +9,9 @@ module ProfessionalNetwork
     validates :name, presence: true
     validates :slug, presence: true, format: { with: /\A[a-z0-9-]+\z/ }, uniqueness: { scope: :website_key }
     validates :status, inclusion: { in: STATUSES }
+    validates :lat, numericality: { greater_than_or_equal_to: -90, less_than_or_equal_to: 90 }, allow_nil: true
+    validates :lng, numericality: { greater_than_or_equal_to: -180, less_than_or_equal_to: 180 }, allow_nil: true
+    validate :coordinates_are_complete
 
     before_validation :assign_slug
 
@@ -30,6 +33,12 @@ module ProfessionalNetwork
 
     def assign_slug
       self.slug = self.class.normalize_name(name).parameterize if slug.blank? && name.present?
+    end
+
+    def coordinates_are_complete
+      return if lat.nil? == lng.nil?
+
+      errors.add(:base, "latitude and longitude must be provided together")
     end
   end
 end

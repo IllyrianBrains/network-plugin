@@ -6,40 +6,6 @@
   margin-top: 1.5rem;
 }
 
-.professional-network-linkedin-flow__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-
-  h3,
-  p {
-    margin: 0;
-  }
-
-  h3 {
-    margin-block: 0.2rem 0.35rem;
-    font-family: var(--pn-display-font);
-    font-size: var(--font-up-2);
-  }
-
-  p:last-child {
-    max-width: 38rem;
-    color: var(--primary-medium);
-    line-height: 1.45;
-  }
-}
-
-.professional-network-source-badge {
-  flex: 0 0 auto;
-  padding: 0.35rem 0.65rem;
-  border-radius: 99px;
-  background: var(--primary-very-low);
-  color: var(--primary-medium);
-  font-size: var(--font-down-1);
-  font-weight: 600;
-}
-
 .professional-network-linkedin-flow .professional-network-upload {
   grid-column: auto;
   margin-top: 0;
@@ -71,32 +37,7 @@
   color: var(--success);
 }
 
-.professional-network-review-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding-top: 0.5rem;
-
-  span {
-    font-size: var(--font-up-1);
-    font-weight: 700;
-  }
-
-  small {
-    color: var(--primary-medium);
-  }
-}
-
 .professional-network-linkedin-flow .professional-network-review {
   grid-column: auto;
   margin-top: 0;
-}
-
-@media (max-width: 700px) {
-  .professional-network-linkedin-flow__header,
-  .professional-network-review-heading {
-    align-items: flex-start;
-    flex-direction: column;
-  }
 }

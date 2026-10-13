@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module ProfessionalNetwork
-  # Serves the Ember app shell for /professional-network/network; the Ember
+  # Serves the Ember app shell for /network; the Ember
   # route registered by professional-network-route-map.js renders the actual
   # graph client-side.
   #

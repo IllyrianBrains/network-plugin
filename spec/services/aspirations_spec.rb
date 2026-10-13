@@ -49,6 +49,19 @@ RSpec.describe ProfessionalNetwork::Aspirations do
       expect { aspirations.assign("note" => "a" * 1001) }
         .to raise_error(Discourse::InvalidParameters)
     end
+
+    it "persists a complete recommendation priority order" do
+      priorities = %w[location help career mentoring opportunities background]
+      aspirations.assign("recommendation_priorities" => priorities)
+      aspirations.save!
+
+      expect(described_class.new(user).recommendation_priorities).to eq(priorities)
+    end
+
+    it "rejects an incomplete recommendation priority order" do
+      expect { aspirations.assign("recommendation_priorities" => ["location"]) }
+        .to raise_error(Discourse::InvalidParameters)
+    end
   end
 
   describe "#public_h" do
@@ -82,7 +95,11 @@ RSpec.describe ProfessionalNetwork::Aspirations do
       aspirations.assign("return_plan" => "maybe", "return_countries" => ["albania", "kosovo"])
       aspirations.save!
 
-      expect(aspirations.private_h).to eq("return_plan" => "maybe", "return_countries" => %w[albania kosovo])
+      expect(aspirations.private_h).to include(
+        "return_plan" => "maybe",
+        "return_countries" => %w[albania kosovo],
+        "recommendation_priorities" => ProfessionalNetwork::Aspirations::RECOMMENDATION_PRIORITIES,
+      )
     end
   end
 

@@ -1,3 +1,23 @@
+.professional-network-section-toggle {
+  display: flex;
+  grid-column: 2;
+  justify-content: flex-end;
+  margin-top: 1rem;
+
+  button {
+    color: var(--pn-accent);
+    font-weight: 600;
+  }
+}
+
+.professional-network-admin-edit-notice {
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 0.4rem;
+  background: var(--highlight-low);
+  color: var(--primary);
+}
+
 .professional-network-upload,
 .professional-network-review {
   grid-column: 2;
@@ -32,7 +52,7 @@
 
 .professional-network-aspirations {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.85rem;
   padding: 1rem;
   border: 1px solid var(--pn-border);
   border-radius: 0.5rem;
@@ -118,22 +138,50 @@
     color: var(--primary-medium);
     line-height: 1.35;
   }
-}
 
-.professional-network-entry {
-  border: 1px solid var(--pn-border);
-  border-radius: 0.5rem;
+  > input,
+  > select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--pn-border);
+    border-radius: 0.4rem;
+    background: var(--secondary);
+    color: var(--primary);
+    font: inherit;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
 
-  summary {
-    padding: 0.7rem 0.85rem;
-    cursor: pointer;
-    font-weight: 600;
+    &:hover {
+      border-color: var(--primary-medium);
+    }
+
+    &:focus-visible {
+      border-color: var(--pn-accent);
+      outline: none;
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--pn-accent) 20%, transparent);
+    }
   }
 
-  .professional-network-service-row {
-    border: 0;
-    border-top: 1px solid var(--pn-border);
-    border-radius: 0;
+  // Native selects render a platform-styled dropdown arrow that clashes with
+  // the rest of this border/radius treatment, so it's replaced with a
+  // theme-reactive chevron drawn from two gradients (no icon asset needed).
+  > select {
+    appearance: none;
+    padding-right: 2.25rem;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--primary-medium) 50%),
+      linear-gradient(135deg, var(--primary-medium) 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.15rem) calc(50% - 2px),
+      calc(100% - 0.85rem) calc(50% - 2px);
+    background-size:
+      5px 5px,
+      5px 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
   }
 }
 
@@ -145,71 +193,6 @@
   font-size: var(--font-down-1);
   font-weight: 700;
   text-transform: uppercase;
-}
-
-.professional-network-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.professional-network-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid var(--pn-border);
-  border-radius: 99px;
-  background: var(--secondary);
-  font-weight: 600;
-  width: auto;
-}
-
-.professional-network-services {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.professional-network-service-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid var(--pn-border);
-  border-radius: 0.5rem;
-  background: var(--secondary);
-
-  > label {
-    display: grid;
-    gap: 0.35rem;
-    font-weight: 600;
-
-    &.is-wide {
-      grid-column: 1 / -1;
-    }
-
-    &:has(input[type="checkbox"]) {
-      display: flex;
-      align-items: center;
-      align-self: end;
-      padding-block: 0.5rem;
-    }
-  }
-
-  textarea {
-    grid-column: 1 / -1;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 0.3rem;
-  }
-
-  button {
-    grid-column: 1 / -1;
-    justify-self: start;
-  }
 }
 
 .professional-network-visibility {
@@ -242,12 +225,14 @@
   small {
     color: var(--primary-medium);
   }
-}
 
-.professional-network-error {
-  color: var(--danger);
-}
+  .professional-network-save-bar__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
 
-.professional-network-success {
-  color: var(--success);
+  .professional-network-public-profile-link {
+    white-space: nowrap;
+  }
 }

@@ -1,3 +1,3 @@
-import ProfessionalNetworkEditor from "../components/professional-network-editor";
+import ProfessionalNetworkEditor from "../components/editor";
 
 export default <template><ProfessionalNetworkEditor /></template>

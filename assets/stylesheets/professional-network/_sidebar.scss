@@ -1,0 +1,25 @@
+// Hides the chat plugin's "Start DM or group chat" sidebar link site-wide.
+// Staff always bypass the `direct_message_enabled_groups` site setting (see
+// Chat::GuardianExtensions#can_direct_message?), so there's no setting that
+// hides this for everyone; the link's own stable data attribute is the only
+// site-wide hook available.
+li[data-list-item-name="new-chat-dm"] {
+  display: none;
+}
+
+// Discourse renders the user's custom sections (including the seeded
+// "Community" section with Topics/My Posts/etc.), then Categories, then
+// Tags, then plugin-registered sections -- there's no plugin API to control
+// this (addSidebarSection just pushes onto an array rendered after the
+// built-in sections). All of those default to flex order 0, so pushing just
+// Categories and Tags to positive orders pulls the Illyrian Brains section
+// (which stays at the default order 0, tied with and DOM-ordered after the
+// custom sections) ahead of Categories/Tags without passing Topics/Community
+// or any user-added custom section.
+.sidebar-sections > [data-section-name="categories"] {
+  order: 1;
+}
+
+.sidebar-sections > [data-section-name="tags"] {
+  order: 2;
+}

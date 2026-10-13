@@ -25,22 +25,48 @@ module ProfessionalNetwork
       if SharedPost.exists?(user_id: current_user.id, website_key: website_key, source_key: key)
         raise Discourse::InvalidParameters.new(:url)
       end
-      category_id = SiteSetting.professional_network_category_id
+      category_id = params[:category_id].presence || SiteSetting.professional_network_category_id
       category = Category.find_by(id: category_id)
       raise Discourse::InvalidParameters.new(:category) unless category && guardian.can_create_topic_on_category?(category)
       title = params[:title].to_s.strip
-      title = "LinkedIn post shared by #{current_user.username}" if title.empty?
+      raise Discourse::InvalidParameters.new(:title) if title.empty?
       commentary = params[:commentary].to_s.strip
       raw_post = "#{commentary}
 
 Original LinkedIn post: #{normalized}".strip
-      creator = PostCreator.create!(current_user, title: title, raw: raw_post,
-                                    category: category.id, skip_validations: false)
-      share = SharedPost.create!(user_id: current_user.id, topic_id: creator.topic.id,
-                                 website_key: website_key, source_url: normalized, source_key: key)
+      tags = tags_param
+      creator = PostCreator.new(current_user, title: title, raw: raw_post,
+                                category: category.id, tags: tags, skip_validations: false)
+      post = creator.create
+      if creator.errors.present?
+        render json: { errors: creator.errors.full_messages }, status: :unprocessable_entity
+        return
+      end
+      # The post_created hook in plugin.rb also matches the "Original LinkedIn
+      # post:" marker line above and may have already recorded this share;
+      # find_or_create_by! keeps this idempotent instead of hitting the
+      # unique (user_id, website_key, source_key) index.
+      share = SharedPost.find_or_create_by!(user_id: current_user.id, website_key: website_key,
+                                            source_key: key) do |s|
+        s.topic_id = post.topic.id
+        s.source_url = normalized
+      end
       render json: { topic_id: share.topic_id, website_key: share.website_key, url: share.source_url }, status: :created
     rescue URI::InvalidURIError
       raise Discourse::InvalidParameters.new(:url)
+    end
+
+    private
+
+    # Hashtags pulled from the LinkedIn post plus a fixed "linkedin" marker
+    # tag. Discourse itself validates/creates these against the site's
+    # tagging rules (SiteSetting.tagging_enabled, create-tag permissions),
+    # so an unusable name here is just silently dropped, not an error.
+    def tags_param
+      return unless SiteSetting.tagging_enabled
+
+      extra = Array(params[:tags]).map { |tag| tag.to_s.strip.delete_prefix("#").downcase }
+      (["linkedin"] + extra).reject(&:blank?).uniq.first(10)
     end
   end
 end

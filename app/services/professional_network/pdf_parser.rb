@@ -6,7 +6,32 @@ module ProfessionalNetwork
   class PdfParser
     MONTHS = /(?:January|February|March|April|May|June|July|August|September|October|November|December)/i
     DATE_RANGE = /\A(#{MONTHS.source})\s+\d{4}\s*-\s*(?:Present|#{MONTHS.source}\s+\d{4})/i
-    HEADINGS = %w[Experience Education Certifications]
+    ISSUED_DATE = /\AIssued\s+#{MONTHS.source}\s+\d{4}/i
+
+    # Main-body section headings we actively parse into a bucket.
+    MAIN_HEADINGS = {
+      "Experience" => "experience",
+      "Education" => "education",
+      "Licenses & Certifications" => "certifications",
+    }.freeze
+
+    # Other LinkedIn PDF section headings we don't parse. Seeing one must
+    # stop accumulation into whatever section was previously active --
+    # otherwise e.g. "Honors & Awards" lines silently leak into Education.
+    STOP_HEADINGS = [
+      "Honors & Awards",
+      "Volunteering",
+      "Skills",
+      "Recommendations",
+      "Courses",
+      "Projects",
+      "Publications",
+      "Languages",
+      "Organizations",
+      "Patents",
+      "Test Scores",
+      "Interests",
+    ].freeze
 
     def self.extract_pdf(io)
       Tempfile.create(["professional-profile", ".pdf"]) do |file|
@@ -33,19 +58,19 @@ module ProfessionalNetwork
       location = right.find { |l| l.match?(/,\s*.+,\s*(Germany|Albania|USA|United States)\z/i) }
       linkedin = left.join(" ").match(%r{(?:https?://)?(?:www\.)?linkedin\.com/in/[a-z0-9_-]+}i)&.to_s
       linkedin = linkedin&.sub(/\A(?:https?:\/\/)?/, "https://")
-      sections = { "experience" => [], "education" => [] }
+      sections = { "experience" => [], "education" => [], "certifications" => [] }
       current = nil
       main.each do |line|
-        if line == "Experience"
-          current = "experience"
-        elsif line == "Education"
-          current = "education"
+        if MAIN_HEADINGS.key?(line)
+          current = MAIN_HEADINGS[line]
+        elsif STOP_HEADINGS.include?(line)
+          current = nil
         elsif current
           sections[current] << line
         end
       end
       skills = collect_sidebar(left, "Top Skills", "Certifications")
-      certs = collect_sidebar(left, "Certifications", nil)
+      certs = (collect_sidebar(left, "Certifications", nil) + parse_certifications(sections["certifications"])).uniq
       {
         "name" => name,
         "headline" => headline,
@@ -91,11 +116,22 @@ module ProfessionalNetwork
     end
 
     def self.parse_education(lines)
+      # Entries are variable-length: a (possibly wrapped) school name,
+      # followed by a degree/field line that carries the year range. Anchor
+      # each entry on that year-range line instead of assuming a fixed
+      # 2-line pair, so a wrapped school name doesn't get split into its
+      # own bogus entry.
       entries = []
-      lines.each_slice(2) do |school, degree_line|
-        next if school.to_s.empty?
-        years = degree_line.to_s.scan(/\b(?:19|20)\d{2}\b/).map(&:to_i)
-        degree = degree_line.to_s.sub(/\s*\((?:19|20)\d{2}\s*-\s*(?:19|20)\d{2}\)\s*\z/, "")
+      chunk = []
+      lines.each do |line|
+        chunk << line
+        next unless line.match?(/\b(?:19|20)\d{2}\b/)
+        school = chunk[0..-2].join(" ")
+        degree_line = chunk.last
+        chunk = []
+        next if school.empty?
+        years = degree_line.scan(/\b(?:19|20)\d{2}\b/).map(&:to_i)
+        degree = degree_line.sub(/\s*\((?:19|20)\d{2}\s*-\s*(?:19|20)\d{2}\)\s*\z/, "")
         entries << {
           "school" => school,
           "degree" => degree,
@@ -105,6 +141,27 @@ module ProfessionalNetwork
           "needs_review" => true,
         }
       end
+      entries
+    end
+
+    def self.parse_certifications(lines)
+      # Entries are a (possibly wrapped) certification name, an issuing
+      # organization, then a fixed "Issued <Month> <Year>" line. Anchor on
+      # that line rather than a fixed slice count, so a wrapped name
+      # doesn't get split into its own bogus entry.
+      entries = []
+      chunk = []
+      lines.each do |line|
+        next if line.match?(/\ACredential ID/i)
+        chunk << line
+        next unless line.match?(ISSUED_DATE)
+        issuer = chunk.length >= 2 ? chunk[-2] : nil
+        title = (issuer ? chunk[0..-3] : chunk[0..-2]).join(" ")
+        chunk = []
+        next if title.empty?
+        entries << (issuer ? "#{title} · #{issuer}" : title)
+      end
+      entries << chunk.join(" ") unless chunk.empty?
       entries
     end
   end

@@ -1,21 +1,24 @@
 en:
   js:
     professional_network:
+      reset:
+        confirm_button: "Reset"
+      sidebar_section:
+        title: "Illyrian Brains"
       profile_page:
-        title: "My professional profile"
+        title: "Profile"
         user_tab: "Professional profile"
         linkedin_tab: "LinkedIn profile"
         mentoring_tab: "Mentoring"
         aspirations_tab: "Aspirations"
         return_tab: "Return plan"
+      share_page:
+        title: "Share post"
       network_graph:
-        title: "Member network"
+        title: "Network"
       directory:
-        title: "Member directory"
-      composer:
-        label: "LinkedIn post"
-        description: "Create a Discourse topic that shares a selected LinkedIn post"
-        regular_label: "Regular topic"
-        regular_description: "Switch back to a regular Discourse topic"
-        action_title: "Share a LinkedIn post"
-        publish_label: "Share post"
+        title: "Members"
+      recommendations:
+        title: "Connections"
+      organization_directory:
+        title: "Organizations"

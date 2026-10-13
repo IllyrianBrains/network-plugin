@@ -1,0 +1,94 @@
+.professional-network-recommendations {
+  max-width: 960px;
+
+  header {
+    margin-bottom: 1.25rem;
+
+    h2,
+    p {
+      margin-block: 0.25rem;
+    }
+
+    h2 {
+      font-family: var(--pn-display-font);
+      letter-spacing: -0.02em;
+    }
+
+    p:last-child {
+      color: var(--primary-medium);
+    }
+  }
+}
+
+.professional-network-recommendations__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.professional-network-recommendation-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--pn-border);
+  border-radius: var(--ib-radius, 0.75rem);
+  background: var(--secondary);
+  box-shadow: 0 0.2rem 0.75rem rgb(0 0 0 / 5%);
+
+  > .btn {
+    align-self: flex-start;
+    margin-top: auto;
+  }
+}
+
+.professional-network-recommendation-card__person {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  img {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  small {
+    color: var(--primary-medium);
+  }
+}
+
+.professional-network-recommendation-card__reasons {
+  strong {
+    font-size: var(--font-down-1);
+    text-transform: uppercase;
+  }
+
+  ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+  }
+
+  li + li {
+    margin-top: 0.35rem;
+  }
+}
+
+.professional-network-recommendations__placeholder {
+  grid-column: 1 / -1;
+  padding: 2rem;
+  border: 1px dashed var(--pn-border);
+  border-radius: var(--ib-radius, 0.75rem);
+  color: var(--primary-medium);
+  text-align: center;
+
+  .btn {
+    margin-top: 0.5rem;
+  }
+}

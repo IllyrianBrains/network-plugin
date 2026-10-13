@@ -1,0 +1,96 @@
+.professional-network-directory-switcher {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--pn-border);
+
+  a {
+    padding: 0.7rem 0.85rem;
+    border-bottom: 3px solid transparent;
+  }
+
+  a[aria-current="page"] {
+    border-bottom-color: var(--pn-accent);
+    color: var(--pn-accent);
+    font-weight: 700;
+  }
+}
+
+.professional-network-organization-directory__count {
+  margin-block: 1rem 0.5rem;
+}
+
+.professional-network-organization-directory__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  gap: 1rem;
+}
+
+.professional-network-organization-card {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--pn-border);
+  border-radius: var(--ib-radius, 0.75rem);
+  background: var(--secondary);
+
+  h3,
+  p,
+  dl {
+    margin: 0;
+  }
+
+  h3 {
+    margin-top: 0.2rem;
+    font-family: var(--pn-display-font);
+    font-size: var(--font-up-2);
+  }
+
+  dl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+  }
+
+  dt,
+  > div > strong {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0.1rem 0 0;
+  }
+
+  .professional-network-tags {
+    gap: 0.35rem;
+    padding: 0.4rem 0 0;
+  }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--pn-border);
+    color: var(--primary-medium);
+
+    > div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  }
+}
+
+.professional-network-organization-card__mission {
+  margin-top: 0.6rem !important;
+  color: var(--primary-medium);
+  line-height: 1.45;
+}

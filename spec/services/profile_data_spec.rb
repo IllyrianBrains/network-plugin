@@ -19,6 +19,96 @@ RSpec.describe ProfessionalNetwork::ProfileData do
       )
     end
 
+    it "normalizes organization projects" do
+      result = described_class.normalize(
+        "organization_projects" => [
+          {
+            "name" => "  Community lab ",
+            "description" => " Shared space ",
+            "upcoming" => " Opens in June ",
+          },
+        ]
+      )
+
+      expect(result["organization_projects"]).to eq(
+        [
+          {
+            "name" => "Community lab",
+            "description" => "Shared space",
+            "upcoming" => "Opens in June",
+          },
+        ]
+      )
+    end
+
+    it "normalizes and validates detailed organization opportunities" do
+      result = described_class.normalize(
+        "organization_opportunity_details" => [
+          {
+            "kind" => "job",
+            "title" => " Engineer ",
+            "description" => " Build community tools ",
+            "url" => " https://example.com/jobs/engineer ",
+            "expires_on" => "2027-01-31",
+          },
+        ]
+      )
+
+      expect(result["organization_opportunity_details"]).to eq(
+        [
+          {
+            "kind" => "job",
+            "title" => "Engineer",
+            "description" => "Build community tools",
+            "url" => "https://example.com/jobs/engineer",
+            "expires_on" => "2027-01-31",
+          },
+        ]
+      )
+    end
+
+    it "accepts a mentoring opportunity kind" do
+      result = described_class.normalize(
+        "organization_opportunity_details" => [
+          { "kind" => "mentoring", "title" => "Startup mentors wanted" },
+        ]
+      )
+
+      expect(result["organization_opportunity_details"]).to eq(
+        [{ "kind" => "mentoring", "title" => "Startup mentors wanted" }]
+      )
+    end
+
+    it "rejects an opportunity kind outside the fixed list" do
+      expect do
+        described_class.normalize(
+          "organization_opportunity_details" => [
+            { "kind" => "internship_wrong", "title" => "Engineer" },
+          ]
+        )
+      end.to raise_error(Discourse::InvalidParameters)
+    end
+
+    it "rejects unsafe URLs in detailed organization opportunities" do
+      expect do
+        described_class.normalize(
+          "organization_opportunity_details" => [
+            { "kind" => "job", "title" => "Engineer", "url" => "javascript:alert(1)" },
+          ]
+        )
+      end.to raise_error(Discourse::InvalidParameters)
+    end
+
+    it "rejects invalid closing dates in detailed organization opportunities" do
+      expect do
+        described_class.normalize(
+          "organization_opportunity_details" => [
+            { "kind" => "event", "title" => "Demo day", "expires_on" => "2027-02-30" },
+          ]
+        )
+      end.to raise_error(Discourse::InvalidParameters)
+    end
+
     it "rejects non-array filter fields" do
       expect { described_class.normalize("skills" => "Ruby") }
         .to raise_error(Discourse::InvalidParameters)
@@ -53,6 +143,18 @@ RSpec.describe ProfessionalNetwork::ProfileData do
         expect(described_class.normalize("experience_level" => level))
           .to include("experience_level" => level)
       end
+    end
+
+    it "accepts the organization type vocabulary" do
+      %w[business ngo professional_network other].each do |type|
+        expect(described_class.normalize("organization_type" => type))
+          .to include("organization_type" => type)
+      end
+    end
+
+    it "rejects an unknown organization type" do
+      expect { described_class.normalize("organization_type" => "clubhouse") }
+        .to raise_error(Discourse::InvalidParameters)
     end
 
     it "rejects an unknown professional experience level" do
@@ -130,6 +232,29 @@ RSpec.describe ProfessionalNetwork::ProfileData do
         "portfolio_url" => "https://portfolio.example.com",
         "calendar_url" => "https://calendar.example.com/member",
       )
+    end
+
+    it "accepts a separate business account username" do
+      result = described_class.normalize("business_username" => "acme-studio")
+
+      expect(result["business_username"]).to eq("acme-studio")
+    end
+
+    it "rejects an unsafe business account username" do
+      expect { described_class.normalize("business_username" => "../admin") }
+        .to raise_error(Discourse::InvalidParameters)
+    end
+
+    it "rejects a non-string business account username instead of raising" do
+      expect { described_class.normalize("business_username" => ["acme-studio"]) }
+        .to raise_error(Discourse::InvalidParameters)
+    end
+
+    it "rejects a non-string URL field instead of raising" do
+      expect { described_class.normalize("website" => { "href" => "https://example.com" }) }
+        .to raise_error(Discourse::InvalidParameters)
+      expect { described_class.normalize("logo_url" => 12_345) }
+        .to raise_error(Discourse::InvalidParameters)
     end
 
     it "normalizes a list of services offered" do

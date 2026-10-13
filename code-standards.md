@@ -10,6 +10,14 @@ rather than introducing a different style.
 - One namespace module per file: `module ProfessionalNetwork ... end`,
   classes nested inside it (`ProfessionalNetwork::Aspirations`, etc.), not
   defined with compact `::` class syntax.
+- New files under `app/models/`, `app/services/`, or `app/controllers/`
+  load automatically via the `ProfessionalNetwork::Engine`
+  (`lib/professional_network/engine.rb`) -- Discourse's official plugin
+  skeleton pattern. A new file's `module`/`class` nesting must match its
+  path exactly for Zeitwerk to find it; don't add a `require_relative` for
+  it in `plugin.rb`. New routes go in `config/routes.rb`, not `plugin.rb`.
+  New site settings need a matching description under `site_settings` in
+  `config/locales/server.en.yml`.
 - Service/query objects under `app/services/professional_network/` are
   **plain Ruby classes**, not Discourse core's `Service::Base` pattern.
   Keep that consistent -- don't mix the two styles in this plugin.
@@ -41,8 +49,8 @@ rather than introducing a different style.
   target style: short, explains a decision, doesn't restate what the code
   already says.
 - Never describe history in comments ("used to be a Group", "added for v0.6")
-  -- that belongs in README.md's version history, not in code. Code comments
-  should be true regardless of when they're read.
+  -- that belongs in the commit message or PR description, not in code. Code
+  comments should be true regardless of when they're read.
 
 ## Size and composition
 
@@ -96,12 +104,66 @@ rather than introducing a different style.
   whatever a given file already does rather than mixing both approaches in
   one component.
 
+## Security and external data
+
+This plugin ingests several kinds of attacker-reachable external data:
+member-uploaded PDFs, pasted LinkedIn post URLs, and (in
+`astro-integration/`) JSON consumed by a separate frontend. Treat all of it
+as untrusted.
+
+- **Shelling out.** `PdfParser.extract_pdf` is the only place this plugin
+  invokes an external binary. It uses `Open3.capture3` with each argument
+  passed as a separate array element (never a single interpolated string),
+  so the uploaded bytes can't reach a shell. Keep that shape for any future
+  shell-out: argv array, not string interpolation, not backticks, not
+  `system("... #{var} ...")`. If a new integration needs another CLI tool,
+  follow the same pattern and say so in a PR description rather than adding
+  it quietly.
+- **Uploaded files.** Write uploaded content to a `Tempfile` (as
+  `extract_pdf` does) rather than trusting a client-supplied path or
+  filename. Don't pass the original filename through to a shell command or
+  use it to build a filesystem path.
+- **External URLs (LinkedIn post links, profile/portfolio/contact URLs).**
+  Parse with `URI.parse` and validate `scheme`, `host` (against an explicit
+  allowlist, not a substring/regex match on the raw string), and `path`
+  before storing or rendering -- see `SharedPost.normalize_url` for the
+  pattern: scheme must be `https`, host must exactly match one of a small
+  allowed set, `userinfo` must be `nil`. Reject on any `URI::InvalidURIError`
+  rather than letting it propagate. Never render a stored URL into a
+  template/attribute in a way that could execute as `javascript:` --
+  the scheme check above is what prevents that.
+- **Parsed PDF text.** `PdfParser.parse` extracts free text that becomes
+  profile fields (name, headline, experience, etc.) and is rendered back to
+  other members. It is member-authored but still attacker-controlled by the
+  uploading member -- don't assume it's safe HTML/markup; keep output
+  escaped wherever the frontend renders it, and don't add any step that
+  evaluates or interprets the extracted text (e.g. no `eval`, no building
+  SQL/shell strings from it). Parsed fields marked `"needs_review" => true`
+  exist so a human confirms them before they're treated as authoritative --
+  don't silently drop that flag or auto-publish review-needed data.
+- **No outbound calls to LinkedIn or any AI service.** Per [AGENTS.md](AGENTS.md),
+  this plugin never calls out to LinkedIn's API or an AI service -- all
+  LinkedIn data arrives as a member-uploaded PDF or a pasted URL, never
+  fetched live. Don't add an HTTP client call to linkedin.com or any LLM
+  API without checking with the user first, even for something that looks
+  like a quality-of-life improvement (e.g. "fetch the post preview").
+- **`astro-integration/` consumers.** This is reference code for an
+  external site, not shipped with the plugin, but the JSON shapes it
+  documents are a real contract: don't add a field to a public JSON
+  endpoint's output without checking it against the public/private field
+  rule above, since an external site has no notion of "staff" or "owner"
+  and will render whatever the endpoint returns.
+- **Multi-tenancy boundary.** `website_key` is also a security boundary,
+  not just a filter: a query that forgets `for_website`/`website_key`
+  scoping leaks one site's member data to another site's requests. Treat it
+  with the same care as an authorization check.
+
 ## Scope discipline
 
-- Features explicitly called out in [README.md](README.md) as "not
+- Features explicitly called out in [AGENTS.md](AGENTS.md) as "not
   implemented" or "out of scope" (member registration/approval, teams,
   follows, posts/feed, blocks/reports) should not be added incidentally
   while working on something else. Flag it to the user instead of building
   it as a side effect of an unrelated change.
 - Keep `website_key` multi-tenancy and public/private field boundaries
-  (see [agents.md](agents.md)) intact in any new query or serializer.
+  (see [AGENTS.md](AGENTS.md)) intact in any new query or serializer.

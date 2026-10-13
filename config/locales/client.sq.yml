@@ -1,0 +1,24 @@
+sq:
+  js:
+    professional_network:
+      reset:
+        confirm_button: "Rivendos"
+      sidebar_section:
+        title: "Illyrian Brains"
+      profile_page:
+        title: "Profili"
+        user_tab: "Profili profesional"
+        linkedin_tab: "Profili në LinkedIn"
+        mentoring_tab: "Mentorim"
+        aspirations_tab: "Aspiratat"
+        return_tab: "Plani i kthimit"
+      share_page:
+        title: "Shpërndaj postim"
+      network_graph:
+        title: "Rrjeti"
+      directory:
+        title: "Anëtarët"
+      recommendations:
+        title: "Lidhjet"
+      organization_directory:
+        title: "Organizatat"

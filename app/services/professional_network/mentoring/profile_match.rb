@@ -18,7 +18,7 @@ module ProfessionalNetwork
         candidate = Preferences.new(@candidate_profile.user)
         return [] unless source.seeking? && candidate.offering?
 
-        [{ weight: WEIGHT, label: "Open to mentoring in #{@target_field}" }]
+        [{ weight: WEIGHT, category: "mentoring", label: "Open to mentoring in #{@target_field}" }]
       end
 
       private

@@ -3,10 +3,10 @@
 require "rails_helper"
 
 RSpec.describe ProfessionalNetwork::RelatedProfiles do
-  fab!(:mentee_user) { Fabricate(:user) }
-  fab!(:mentor_user) { Fabricate(:user) }
-  fab!(:peer_user) { Fabricate(:user) }
-  fab!(:stranger_user) { Fabricate(:user) }
+  fab!(:mentee_user, :user)
+  fab!(:mentor_user, :user)
+  fab!(:peer_user, :user)
+  fab!(:stranger_user, :user)
 
   def set_aspirations(user, attrs)
     aspirations = ProfessionalNetwork::Aspirations.new(user)
@@ -57,6 +57,21 @@ RSpec.describe ProfessionalNetwork::RelatedProfiles do
     expect(results.map { |r| r[:profile].id }).not_to include(stranger_profile.id)
   end
 
+  it "falls back to other published members when there are no strong matches" do
+    mentee_profile.update!(data: {})
+    mentor_profile.update!(data: {})
+    peer_profile.update!(data: {})
+
+    set_aspirations(mentee_user, "field" => "", "mentoring_interests" => [])
+    set_aspirations(mentor_user, "mentoring_interests" => [])
+    set_aspirations(peer_user, "mentoring_interests" => [])
+
+    results = described_class.new(mentee_profile).results
+
+    expect(results).not_to be_empty
+    expect(results).to all(include(score: 0.0, reasons: ["Expand your professional network"]))
+  end
+
   it "matches a job seeker with someone hiring" do
     set_aspirations(mentee_user, "business_interests" => ["job_opportunities"])
     set_aspirations(stranger_user, "business_interests" => ["hiring_candidates"])
@@ -92,5 +107,36 @@ RSpec.describe ProfessionalNetwork::RelatedProfiles do
 
     results = described_class.new(mentee_profile).results
     expect(results.map { |r| r[:profile].id }).not_to include(stranger_profile.id)
+  end
+
+  it "uses cosine similarity to surface similar professional profile text" do
+    mentee_profile.update!(data: { "about" => "Robotics automation systems" })
+    stranger_profile.update!(data: { "about" => "Robotics automation research" })
+
+    match = described_class.new(mentee_profile).results.find { |result| result[:profile].id == stranger_profile.id }
+
+    expect(match[:score]).to be_between(0, 100)
+    expect(match[:reasons]).to include("Similar professional background")
+  end
+
+  it "uses the member's priority order when ranking candidates" do
+    city_user = Fabricate(:user)
+    city_profile = ProfessionalNetwork::Profile.create!(
+      user: city_user,
+      website_key: "default",
+      public_profile: true,
+      data: { "city" => "Berlin" },
+    )
+    mentee_profile.update!(data: { "city" => "Berlin", "fields_of_expertise" => ["Robotics"] })
+    stranger_profile.update!(data: { "fields_of_expertise" => ["Robotics"] })
+
+    set_aspirations(
+      mentee_user,
+      "recommendation_priorities" => %w[location help mentoring opportunities background career],
+    )
+    results = described_class.new(mentee_profile).results
+
+    expect(results.index { |result| result[:profile] == city_profile })
+      .to be < results.index { |result| result[:profile] == stranger_profile }
   end
 end

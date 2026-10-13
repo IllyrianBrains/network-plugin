@@ -21,8 +21,106 @@
   }
 }
 
+.professional-network-panel__logo {
+  align-self: start;
+  width: 8rem;
+  max-height: 6rem;
+  border-radius: 0.75rem;
+  object-fit: contain;
+}
+
 .professional-network-panel__sections
   > .professional-network-form-section
   > .professional-network-list {
   padding: 1rem 1.25rem 1.25rem;
+}
+
+@media (width <= 800px) {
+  .professional-network-panel__header,
+  .professional-network-editor header,
+  .professional-network-save-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .professional-network-panel__links {
+    margin-top: 0.25rem;
+  }
+
+  .professional-network-panel .professional-network-form-section summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    small {
+      width: 100%;
+      margin-inline-start: 0;
+      text-align: left;
+    }
+  }
+
+  .professional-network-editor {
+    display: block;
+    padding: 1rem;
+  }
+
+  .professional-network-editor > .professional-network-tabs {
+    position: sticky;
+    top: var(--header-offset, 0);
+    flex-direction: row;
+    gap: 0.25rem;
+    overflow-x: auto;
+    padding: 0.75rem 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--pn-border);
+    scrollbar-width: thin;
+
+    button {
+      width: auto;
+      flex: 0 0 auto;
+      border-radius: 99px;
+      text-align: center;
+    }
+  }
+
+  .professional-network-service-row {
+    grid-template-columns: 1fr;
+  }
+
+  .professional-network-form-section__body:not(.professional-network-services) {
+    grid-template-columns: 1fr;
+  }
+
+  .professional-network-field.is-wide {
+    grid-column: auto;
+  }
+
+  .professional-network-progress {
+    flex-basis: auto;
+
+    span {
+      text-align: left;
+    }
+  }
+
+  .professional-network-save-bar {
+    margin-inline: -1rem;
+    margin-bottom: -1rem;
+  }
+
+  .professional-network-graph {
+    padding: 1rem;
+  }
+
+  .professional-network-graph__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .professional-network-graph__toolbar-controls {
+    align-items: stretch;
+
+    .professional-network-graph__filters {
+      align-items: stretch;
+    }
+  }
 }

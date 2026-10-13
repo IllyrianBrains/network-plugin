@@ -2,7 +2,8 @@
 
 # Local development helper invoked by dev/seed-example-data.sh.
 # This file runs inside the Discourse Rails environment and seeds example
-# member profiles for manual testing of the directory and network graph.
+# canonical cities and member profiles for manual testing of the map, directory,
+# and network graph.
 # Idempotent: safe to rerun after `docker compose down -v`.
 
 WEBSITE_KEY = "default"
@@ -32,6 +33,12 @@ def seed_profile(user, data, aspirations: nil)
 
   profile
 end
+
+city_result = ProfessionalNetwork::CityImporter.new(
+  path: File.expand_path("example_cities.csv", __dir__),
+  website_key: WEBSITE_KEY,
+).import!
+puts "Seeded cities: #{city_result[:created]} created, #{city_result[:updated]} updated."
 
 puts "Seeding example members..."
 
