@@ -29,6 +29,26 @@
   object-fit: contain;
 }
 
+.professional-network-profile-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+
+  span {
+    padding: 0.2rem 0.5rem;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--success) 14%, var(--pn-card));
+    color: var(--success);
+    font-size: var(--font-down-1);
+    font-weight: 700;
+  }
+
+  .is-stale {
+    background: var(--highlight-low);
+    color: var(--primary-high);
+  }
+}
+
 .professional-network-panel__sections
   > .professional-network-form-section
   > .professional-network-list {
@@ -45,6 +65,15 @@
 
   .professional-network-panel__links {
     margin-top: 0.25rem;
+  }
+
+  .professional-network-save-bar__actions {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .professional-network-public-profile-link {
+    white-space: normal;
   }
 
   .professional-network-panel .professional-network-form-section summary {
@@ -87,6 +116,10 @@
   }
 
   .professional-network-form-section__body:not(.professional-network-services) {
+    grid-template-columns: 1fr;
+  }
+
+  .professional-network-field-group__row {
     grid-template-columns: 1fr;
   }
 

@@ -18,6 +18,8 @@ module ProfessionalNetwork
       Profile.transaction do
         Profile.find_by!(user_id: user.id, website_key: website_key).destroy!
         ImportDraft.where(user_id: user.id, website_key: website_key).delete_all
+        RecommendationFeedback.for_website(website_key)
+          .where("user_id = :id OR recommended_user_id = :id", id: user.id).delete_all
         CUSTOM_FIELDS.each { |field| user.custom_fields.delete(field) }
         user.save_custom_fields
       end

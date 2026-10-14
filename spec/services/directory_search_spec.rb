@@ -3,10 +3,10 @@
 require "rails_helper"
 
 RSpec.describe ProfessionalNetwork::DirectorySearch do
-  fab!(:freelancer_user) { Fabricate(:user) }
-  fab!(:employee_user) { Fabricate(:user) }
-  fab!(:organization_user) { Fabricate(:user) }
-  fab!(:unpublished_user) { Fabricate(:user) }
+  fab!(:freelancer_user, :user)
+  fab!(:employee_user, :user)
+  fab!(:organization_user, :user)
+  fab!(:unpublished_user, :user)
 
   let!(:freelancer_profile) do
     ProfessionalNetwork::Profile.create!(
@@ -25,7 +25,7 @@ RSpec.describe ProfessionalNetwork::DirectorySearch do
     ProfessionalNetwork::Profile.create!(
       user: organization_user, website_key: "default", public_profile: true,
       profile_type: "organization",
-      data: { "name" => "Illyrian Brains Network", "organization_type" => "professional_network",
+      data: { "name" => "Regional Founders Network", "organization_type" => "professional_network",
               "sector" => "Technology", "organization_needs" => ["Partners"],
               "collaboration_interests" => ["Joint research"],
               "organization_opportunity_details" => [{ "kind" => "mentoring", "title" => "Founder mentors" }] },
@@ -42,6 +42,37 @@ RSpec.describe ProfessionalNetwork::DirectorySearch do
   it "filters by availability" do
     results = described_class.new(website_key: "default", availability: "part_time").results
     expect(results.map(&:id)).to contain_exactly(freelancer_profile.id)
+  end
+
+  it "filters members by industry suggestions or custom industry text" do
+    freelancer_profile.update!(data: freelancer_profile.data.merge("industry" => "Climate technology"))
+
+    results = described_class.new(website_key: "default", industry: "climate").results
+
+    expect(results.map(&:id)).to contain_exactly(freelancer_profile.id)
+  end
+
+  it "paginates results and reports the filtered total" do
+    search = described_class.new(website_key: "default", page: 2, per_page: 1)
+
+    expect(search.results.length).to eq(1)
+    expect(search.total_count).to eq(2)
+    expect(search.page).to eq(2)
+    expect(search.per_page).to eq(1)
+  end
+
+  it "caps the requested page size" do
+    search = described_class.new(website_key: "default", per_page: 500)
+
+    search.results
+    expect(search.per_page).to eq(100)
+  end
+
+  it "clamps a page beyond the final result page" do
+    search = described_class.new(website_key: "default", page: 20, per_page: 1)
+
+    expect(search.results.length).to eq(1)
+    expect(search.page).to eq(2)
   end
 
   it "filters to only those open to consulting" do

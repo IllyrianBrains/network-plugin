@@ -2,6 +2,7 @@
 export const prerender = false;
 const base = import.meta.env.DISCOURSE_URL;
 const websiteKey = import.meta.env.PROFESSIONAL_NETWORK_WEBSITE_KEY || "default";
+const networkName = import.meta.env.PROFESSIONAL_NETWORK_NAME || "Professional Network";
 let nodes: any[] = [];
 let edges: any[] = [];
 if (base) {
@@ -26,7 +27,7 @@ const elementsJson = JSON.stringify(elements).replace(/</g, "\\u003c");
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Member network · Professional network</title>
+  <title>Member network · {networkName}</title>
   <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
 </head>
 <body style="margin:0;font:16px system-ui">

@@ -1,0 +1,114 @@
+// Network pages use the same tinted hero and contained card surface as the
+// LinkedIn share flow, while retaining layouts suited to their own content.
+.professional-network-directory,
+.professional-network-graph,
+.professional-network-recommendations,
+.professional-network-editor,
+.professional-network-panel,
+.professional-network-account-type,
+.professional-network-admin {
+  --pn-page-padding: clamp(1rem, 3vw, 2rem);
+  box-sizing: border-box;
+  padding: var(--pn-page-padding);
+  overflow: hidden;
+  border: 1px solid var(--pn-border);
+  border-radius: var(--ib-radius, 0.75rem);
+  background: var(--pn-surface);
+  box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 5%);
+}
+
+.professional-network-directory,
+.professional-network-graph,
+.professional-network-recommendations,
+.professional-network-account-type,
+.professional-network-admin {
+  > header {
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    margin: calc(var(--pn-page-padding) * -1) calc(var(--pn-page-padding) * -1)
+      1.5rem;
+    border-bottom: 1px solid var(--pn-border);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--pn-accent) 14%, var(--pn-card)),
+      var(--pn-card) 65%
+    );
+
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h2 {
+      margin-block: 0.15rem 0.35rem;
+      font-size: clamp(1.75rem, 4vw, 2.35rem);
+    }
+
+    > p:last-child {
+      max-width: 42rem;
+      color: var(--primary-high);
+      line-height: 1.5;
+    }
+  }
+}
+
+.professional-network-account-type {
+  > header {
+    padding-inline: var(--pn-page-padding);
+  }
+
+  .professional-network-account-type__choices button {
+    border-width: 1px;
+    background: var(--pn-card);
+    box-shadow: 0 0.2rem 0.75rem rgb(0 0 0 / 4%);
+  }
+}
+
+.professional-network-editor {
+  > header {
+    padding: 1.5rem;
+    margin: -1.5rem -1.5rem 0;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--pn-accent) 14%, var(--pn-card)),
+      var(--pn-card) 65%
+    );
+  }
+
+  .professional-network-form-section,
+  .professional-network-upload__controls,
+  .professional-network-aspirations {
+    background: var(--pn-card);
+    box-shadow: 0 0.2rem 0.75rem rgb(0 0 0 / 4%);
+  }
+}
+
+.professional-network-panel {
+  .professional-network-panel__header {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--pn-accent) 14%, var(--pn-card)),
+      var(--pn-card) 65%
+    );
+  }
+
+  .professional-network-panel__summary,
+  .professional-network-form-section {
+    background: var(--pn-card);
+  }
+}
+
+.professional-network-directory form,
+.professional-network-graph__toolbar,
+.professional-network-graph__prompt,
+.professional-network-recommendation-card,
+.professional-network-organization-card {
+  background: var(--pn-card);
+  box-shadow: 0 0.2rem 0.75rem rgb(0 0 0 / 4%);
+}
+
+@media (width <= 800px) {
+  .professional-network-editor > header {
+    padding: 1rem;
+    margin: -1rem -1rem 0;
+  }
+}

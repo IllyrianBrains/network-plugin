@@ -4,7 +4,7 @@ en:
       reset:
         confirm_button: "Reset"
       sidebar_section:
-        title: "Illyrian Brains"
+        title: "Network"
       profile_page:
         title: "Profile"
         user_tab: "Professional profile"
@@ -22,3 +22,5 @@ en:
         title: "Connections"
       organization_directory:
         title: "Organizations"
+      admin:
+        title: "Network administration"

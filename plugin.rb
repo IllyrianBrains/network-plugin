@@ -34,20 +34,35 @@ after_initialize do
   end
 
   on(:post_created) do |post|
+    # Cheap guards first so this costs ~nothing on the vast majority of
+    # forum posts, which aren't the first post of a topic and don't mention
+    # LinkedIn at all -- this runs on every post site-wide, not just within
+    # the plugin's own category, so it must stay cheap to skip.
+    next unless SiteSetting.professional_network_enabled
     next unless post.post_number == 1
+    raw = post.raw.to_s
+    next if raw.exclude?("linkedin.com")
 
-    match = post.raw.to_s.match(%r{Original LinkedIn post:\s*(https://(?:www\.)?linkedin\.com/(?:posts/|feed/update/)[^\s<]+)}i)
-    next unless match
+    begin
+      match = raw.match(%r{Original LinkedIn post:\s*(https://(?:www\.)?linkedin\.com/(?:posts/|feed/update/)[^\s<]+)}i)
+      next unless match
 
-    normalized = ProfessionalNetwork::SharedPost.normalize_url(match[1])
-    next unless normalized
+      normalized = ProfessionalNetwork::SharedPost.normalize_url(match[1])
+      next unless normalized
 
-    source_key = Digest::SHA256.hexdigest(normalized)
-    next if ProfessionalNetwork::SharedPost.exists?(user_id: post.user_id, source_key: source_key)
+      source_key = Digest::SHA256.hexdigest(normalized)
+      next if ProfessionalNetwork::SharedPost.exists?(user_id: post.user_id, source_key: source_key)
 
-    ProfessionalNetwork::SharedPost.find_or_create_by!(user_id: post.user_id, topic_id: post.topic_id) do |share|
-      share.source_url = normalized
-      share.source_key = source_key
+      ProfessionalNetwork::SharedPost.find_or_create_by!(user_id: post.user_id, topic_id: post.topic_id) do |share|
+        share.source_url = normalized
+        share.source_key = source_key
+      end
+    rescue StandardError => e
+      # Never let a failure here (bad data, a race on the unique index, a DB
+      # blip) break post creation for the whole forum -- this is a
+      # best-effort backstop; SharesController#create is the primary path
+      # and already records the share itself.
+      Rails.logger.warn("[professional_network] post_created hook failed for post #{post.id}: #{e.message}")
     end
   end
 end

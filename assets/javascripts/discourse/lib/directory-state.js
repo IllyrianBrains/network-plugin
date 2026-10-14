@@ -19,6 +19,7 @@ const FIELD_LABELS = {
   country: "Country",
   field: "Field of expertise",
   skill: "Skill",
+  industry: "Industry",
   experience_level: "Experience level",
   availability: "Availability",
   open_to_consulting: "Open to consulting",
@@ -43,6 +44,7 @@ const EMPTY_FILTERS = {
   country: "",
   field: "",
   skill: "",
+  industry: "",
   experience_level: "",
   availability: "",
   open_to_consulting: false,
@@ -63,6 +65,7 @@ const SORT_ACCESSORS = {
     EXPERIENCE_LEVEL_OPTIONS.findIndex(
       (option) => option.value === result.profile.experience_level
     ),
+  updated_at: (result) => result.profile_updated_at || "",
 };
 
 function toggle(list, value) {
@@ -83,6 +86,9 @@ export default class ProfessionalNetworkDirectory extends ProfessionalNetworkDir
   @tracked loading = false;
   @tracked searched = false;
   @tracked error = false;
+  @tracked page = 1;
+  @tracked perPage = 25;
+  @tracked totalCount = 0;
 
   setIndeterminate = modifier((element, [value]) => {
     element.indeterminate = value;
@@ -90,11 +96,28 @@ export default class ProfessionalNetworkDirectory extends ProfessionalNetworkDir
 
   constructor() {
     super(...arguments);
-    this.search();
+    this.restoreFiltersFromUrl();
+    this.search(this.page);
   }
 
   get resultCount() {
-    return this.profiles.length;
+    return this.totalCount;
+  }
+
+  get totalPages() {
+    return Math.max(1, Math.ceil(this.totalCount / this.perPage));
+  }
+
+  get hasPreviousPage() {
+    return this.page > 1;
+  }
+
+  get hasNextPage() {
+    return this.page < this.totalPages;
+  }
+
+  get emptyFilters() {
+    return EMPTY_FILTERS;
   }
 
   get canShowAllAccounts() {
@@ -141,35 +164,43 @@ export default class ProfessionalNetworkDirectory extends ProfessionalNetworkDir
       }));
   }
 
+  restoreFiltersFromUrl() {
+    const query = new URLSearchParams(window.location.search);
+    this.page = Math.max(Number.parseInt(query.get("page"), 10) || 1, 1);
+    this.filters = Object.fromEntries(
+      Object.entries(EMPTY_FILTERS).map(([key, fallback]) => {
+        const value = query.get(key);
+        return [
+          key,
+          typeof fallback === "boolean" ? value === "true" : value || fallback,
+        ];
+      })
+    );
+  }
+
+  syncFiltersToUrl() {
+    const query = new URLSearchParams();
+    Object.entries(this.filters).forEach(([key, value]) => {
+      if (value !== "" && value !== false) {
+        query.set(key, value);
+      }
+    });
+    if (this.page > 1) {
+      query.set("page", this.page);
+    }
+    window.history.replaceState(
+      {},
+      "",
+      query.size ? `?${query}` : window.location.pathname
+    );
+  }
+
   describeFilter(key, value) {
     if (value === true) {
       return FIELD_LABELS[key];
     }
     const lookup = VALUE_LABELS[key];
     return `${FIELD_LABELS[key]}: ${lookup ? lookup[value] || value : value}`;
-  }
-
-  @action
-  changeFilter(field, event) {
-    this.filters = { ...this.filters, [field]: event.target.value };
-  }
-
-  @action
-  changeFilterAndSearch(field, event) {
-    this.changeFilter(field, event);
-    this.search();
-  }
-
-  @action
-  changeFilterCheckbox(field, event) {
-    this.filters = { ...this.filters, [field]: event.target.checked };
-    this.search();
-  }
-
-  @action
-  removeFilter(key) {
-    this.filters = { ...this.filters, [key]: EMPTY_FILTERS[key] };
-    this.search();
   }
 
   @action
@@ -191,18 +222,6 @@ export default class ProfessionalNetworkDirectory extends ProfessionalNetworkDir
   }
 
   @action
-  submit(event) {
-    event.preventDefault();
-    this.search();
-  }
-
-  @action
-  reset() {
-    this.filters = { ...EMPTY_FILTERS };
-    this.search();
-  }
-
-  @action
   toggleSort(key) {
     if (!SORT_ACCESSORS[key]) {
       return;
@@ -211,7 +230,7 @@ export default class ProfessionalNetworkDirectory extends ProfessionalNetworkDir
       this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
     } else {
       this.sortKey = key;
-      this.sortDirection = "asc";
+      this.sortDirection = key === "updated_at" ? "desc" : "asc";
     }
   }
 
@@ -232,7 +251,23 @@ export default class ProfessionalNetworkDirectory extends ProfessionalNetworkDir
     this.selected = [];
   }
 
-  async search() {
+  @action
+  previousPage() {
+    if (this.hasPreviousPage) {
+      this.search(this.page - 1);
+    }
+  }
+
+  @action
+  nextPage() {
+    if (this.hasNextPage) {
+      this.search(this.page + 1);
+    }
+  }
+
+  async search(page = 1) {
+    this.page = page;
+    this.syncFiltersToUrl();
     this.loading = true;
     this.error = false;
     this.selected = [];
@@ -244,9 +279,12 @@ export default class ProfessionalNetworkDirectory extends ProfessionalNetworkDir
         )
       );
       const response = await ajax("/network/profiles", {
-        data: params,
+        data: { ...params, page: this.page },
       });
       this.profiles = response.profiles || [];
+      this.page = response.pagination?.page || 1;
+      this.perPage = response.pagination?.per_page || 25;
+      this.totalCount = response.pagination?.total_count || 0;
     } catch {
       this.profiles = [];
       this.error = true;

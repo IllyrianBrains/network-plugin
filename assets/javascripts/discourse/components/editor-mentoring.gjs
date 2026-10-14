@@ -13,7 +13,8 @@ const ProfessionalNetworkEditorMentoring = <template>
     <legend>Mentoring</legend>
 
     <details
-      class="professional-network-form-section"
+      class="professional-network-form-section
+        {{if @editor.fieldErrors.mentoring_interests 'has-error'}}"
       open={{@editor.sectionsExpanded}}
     >
       <summary><span>What are you interested in?</span></summary>
@@ -34,12 +35,18 @@ const ProfessionalNetworkEditorMentoring = <template>
               </label>
             {{/each}}
           </div>
+          {{#if @editor.fieldErrors.mentoring_interests}}
+            <p class="professional-network-field-error" role="alert">
+              {{@editor.fieldErrors.mentoring_interests}}
+            </p>
+          {{/if}}
         </div>
       </div>
     </details>
 
     <details
-      class="professional-network-form-section"
+      class="professional-network-form-section
+        {{if @editor.fieldErrors.mentoring_wanted_types 'has-error'}}"
       open={{@editor.sectionsExpanded}}
     >
       <summary><span>What kind of mentoring would you like?</span></summary>
@@ -60,12 +67,18 @@ const ProfessionalNetworkEditorMentoring = <template>
               </label>
             {{/each}}
           </div>
+          {{#if @editor.fieldErrors.mentoring_wanted_types}}
+            <p class="professional-network-field-error" role="alert">
+              {{@editor.fieldErrors.mentoring_wanted_types}}
+            </p>
+          {{/if}}
         </div>
       </div>
     </details>
 
     <details
-      class="professional-network-form-section"
+      class="professional-network-form-section
+        {{if @editor.fieldErrors.mentoring_provided_types 'has-error'}}"
       open={{@editor.sectionsExpanded}}
     >
       <summary><span>What kind of mentoring can you provide?</span></summary>
@@ -89,12 +102,18 @@ const ProfessionalNetworkEditorMentoring = <template>
               </label>
             {{/each}}
           </div>
+          {{#if @editor.fieldErrors.mentoring_provided_types}}
+            <p class="professional-network-field-error" role="alert">
+              {{@editor.fieldErrors.mentoring_provided_types}}
+            </p>
+          {{/if}}
         </div>
       </div>
     </details>
 
     <details
-      class="professional-network-form-section"
+      class="professional-network-form-section
+        {{if @editor.fieldErrors.mentoring_note 'has-error'}}"
       open={{@editor.sectionsExpanded}}
     >
       <summary><span>Anything else to add?</span><small>Shown on your public
@@ -110,6 +129,11 @@ const ProfessionalNetworkEditorMentoring = <template>
             value={{@editor.mentoringNote}}
             {{on "input" @editor.changeMentoringNote}}
           ></textarea>
+          {{#if @editor.fieldErrors.mentoring_note}}
+            <p class="professional-network-field-error" role="alert">
+              {{@editor.fieldErrors.mentoring_note}}
+            </p>
+          {{/if}}
         </div>
       </div>
     </details>

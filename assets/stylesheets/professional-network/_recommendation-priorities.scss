@@ -27,7 +27,8 @@
   width: 1.8rem;
   height: 1.8rem;
   border-radius: 50%;
-  background: var(--tertiary-low);
+  background: color-mix(in srgb, var(--pn-accent) 16%, var(--secondary));
+  color: var(--pn-accent-dark);
   font-weight: 700;
   place-items: center;
 }

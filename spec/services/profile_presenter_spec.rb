@@ -33,11 +33,31 @@ RSpec.describe ProfessionalNetwork::ProfilePresenter do
       user: member_user,
       website_key: "example.com",
       public_profile: true,
-      data: { "name" => "Ada", "headline" => "Engineer", "business_username" => "ACME" },
+      data: {
+        "name" => "Ada",
+        "headline" => "Engineer",
+        "organization_usernames" => %w[another-org ACME],
+      },
     )
 
     expect(described_class.new(organization_profile).linked_members).to contain_exactly(
       include(username: "ada", name: "Ada", headline: "Engineer")
     )
+  end
+
+  it "archives expired opportunities from public profile data" do
+    organization_profile.update!(
+      data: {
+        "organization_opportunity_details" => [
+          { "kind" => "job", "title" => "Old role", "expires_on" => 1.day.ago.to_date.iso8601 },
+          { "kind" => "job", "title" => "Current role", "expires_on" => 1.day.from_now.to_date.iso8601 },
+        ],
+      },
+    )
+
+    opportunities = described_class.new(organization_profile).public_profile_data[
+      "organization_opportunity_details"
+    ]
+    expect(opportunities.map { |item| item["title"] }).to contain_exactly("Current role")
   end
 end

@@ -71,10 +71,13 @@ export function buildDirectoryRows(profiles) {
         label: "Book a meeting",
         url: profile.calendar_url,
       },
-      profile.business_username && {
-        label: "Business profile",
-        url: `/u/${encodeURIComponent(profile.business_username)}`,
-      },
+      ...(
+        profile.organization_usernames ||
+        (profile.business_username ? [profile.business_username] : [])
+      ).map((username) => ({
+        label: username,
+        url: `/u/${encodeURIComponent(username)}`,
+      })),
     ].filter(Boolean);
 
     return {

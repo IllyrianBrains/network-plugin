@@ -1,7 +1,9 @@
 import { tracked } from "@glimmer/tracking";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
+import { service } from "@ember/service";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import ProfessionalNetworkGraphFilters from "discourse/plugins/discourse-professional-network/discourse/components/graph-filters";
 import ProfessionalNetworkGraphLegend from "discourse/plugins/discourse-professional-network/discourse/components/graph-legend";
@@ -12,6 +14,8 @@ import ProfessionalNetworkMap from "discourse/plugins/discourse-professional-net
 import ProfessionalNetworkGraphState from "discourse/plugins/discourse-professional-network/discourse/lib/graph-state";
 
 export default class ProfessionalNetworkGraph extends ProfessionalNetworkGraphState {
+  @service siteSettings;
+
   @tracked viewMode = "graph";
 
   @action
@@ -27,7 +31,7 @@ export default class ProfessionalNetworkGraph extends ProfessionalNetworkGraphSt
   <template>
     <div class="professional-network-graph" {{this.load}}>
       <header>
-        <p class="professional-network-panel__eyebrow">Professional network</p>
+        <p class="professional-network-panel__eyebrow">{{this.siteSettings.professional_network_name}}</p>
         <h2>Network</h2>
         <p>Discover how members and organizations are connected by shared cities
           and areas of expertise.</p>
@@ -72,19 +76,35 @@ export default class ProfessionalNetworkGraph extends ProfessionalNetworkGraphSt
           <p>No public profile data yet.</p>
         </div>
       {{else if this.readyToRender}}
+        {{#if this.memberPreview}}
+          <p class="professional-network-graph__preview-note">
+            Showing
+            {{this.memberLimit}}
+            of
+            {{this.totalMemberCount}}
+            members.
+            <a href="/login">Log in</a>
+            to see the full network.
+          </p>
+        {{/if}}
         <div class="professional-network-graph__toolbar">
-          <ProfessionalNetworkGraphLegend />
-          <div class="professional-network-graph__toolbar-controls">
-            <ProfessionalNetworkGraphFilters @graph={{this}} />
-            <ProfessionalNetworkGraphTools @graph={{this}} />
-          </div>
+          <ProfessionalNetworkGraphFilters @graph={{this}} />
         </div>
         <div class="professional-network-graph__canvas-wrap">
           <div class="professional-network-graph__canvas" {{this.setup}}></div>
+          <ProfessionalNetworkGraphLegend />
           <ProfessionalNetworkGraphPopup
             @onClose={{this.closePopup}}
             @popup={{this.popup}}
           />
+        </div>
+        <div class="professional-network-graph__toolbar-controls">
+          <DButton
+            class="btn-flat professional-network-graph__filters-reset"
+            @action={{this.resetFilters}}
+            @translatedLabel="Reset filters"
+          />
+          <ProfessionalNetworkGraphTools @graph={{this}} />
         </div>
         <p class="professional-network-graph__status">
           {{#if this.hasActiveFilters}}

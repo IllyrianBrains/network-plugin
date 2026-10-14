@@ -1,6 +1,10 @@
 import { action } from "@ember/object";
 import { ajax } from "discourse/lib/ajax";
 import ProfessionalNetworkEditorBase from "discourse/plugins/discourse-professional-network/discourse/lib/editor-base";
+import {
+  MENTORING_OPTIONS,
+  MENTORING_TYPE_OPTIONS,
+} from "discourse/plugins/discourse-professional-network/discourse/lib/mentoring";
 
 const BLANK_ENTRIES = {
   experience: {
@@ -19,7 +23,15 @@ const BLANK_ENTRIES = {
     start_year: "",
     end_year: "",
   },
-  organization_projects: { name: "", description: "", upcoming: "" },
+  organization_projects: {
+    name: "",
+    description: "",
+    upcoming: "",
+    status: "active",
+    starts_on: "",
+    ends_on: "",
+  },
+  organization_contacts: { name: "", role: "", url: "" },
   organization_opportunity_details: {
     kind: "",
     title: "",
@@ -33,7 +45,7 @@ export default class ProfessionalNetworkEditorProfileState extends ProfessionalN
   async loadProfile() {
     try {
       const result = await ajax(
-        `/network/profiles/${encodeURIComponent(this.targetUsername)}`
+        `/network/profiles/${encodeURIComponent(this.targetUsername)}`,
       );
       this.profile = result.profile;
       this.accountType = result.profile_type || "person";
@@ -76,6 +88,7 @@ export default class ProfessionalNetworkEditorProfileState extends ProfessionalN
       freelance_rate,
       minimum_project_size,
       business_username,
+      organization_usernames,
       services,
       ...rest
     } = profile;
@@ -97,12 +110,14 @@ export default class ProfessionalNetworkEditorProfileState extends ProfessionalN
     this.openToConsulting = !!open_to_consulting;
     this.pricing = freelance_rate || "";
     this.minimumEngagement = minimum_project_size || "";
-    this.businessUsername = business_username || "";
+    this.organizationUsernamesInput = (
+      organization_usernames || (business_username ? [business_username] : [])
+    ).join(", ");
     this.services = services || [];
     this.fieldsOfExpertiseInput = (rest.fields_of_expertise || []).join(", ");
     this.skillsInput = (rest.skills || []).join(", ");
     this.languagesInput = (rest.languages || []).join(", ");
-    this.certificationsInput = (rest.certifications || []).join(", ");
+    this.certificationsInput = (rest.certifications || []).join("; ");
     this.preferredLocationsInput = (rest.preferred_locations || []).join(", ");
     rest.experience = (rest.experience || []).map((entry) => ({
       ...entry,
@@ -124,9 +139,17 @@ export default class ProfessionalNetworkEditorProfileState extends ProfessionalN
   syncAspirationFields(aspirations) {
     this.aspirationField = aspirations?.field || "";
     this.aspirationSubfield = aspirations?.subfield || "";
-    this.mentoringInterests = aspirations?.mentoring_interests || [];
-    this.mentoringWantedTypes = aspirations?.mentoring_wanted_types || [];
-    this.mentoringProvidedTypes = aspirations?.mentoring_provided_types || [];
+    const interestValues = MENTORING_OPTIONS.map((option) => option.value);
+    const typeValues = MENTORING_TYPE_OPTIONS.map((option) => option.value);
+    this.mentoringInterests = (aspirations?.mentoring_interests || []).filter(
+      (value) => interestValues.includes(value),
+    );
+    this.mentoringWantedTypes = (
+      aspirations?.mentoring_wanted_types || []
+    ).filter((value) => typeValues.includes(value));
+    this.mentoringProvidedTypes = (
+      aspirations?.mentoring_provided_types || []
+    ).filter((value) => typeValues.includes(value));
     this.mentoringNote = aspirations?.mentoring_note || "";
     this.businessInterests = aspirations?.business_interests || [];
     this.aspirationsNote = aspirations?.note || "";
@@ -189,6 +212,24 @@ export default class ProfessionalNetworkEditorProfileState extends ProfessionalN
   }
 
   @action
+  async uploadOrganizationLogo(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    const form = new FormData();
+    form.append("file", file);
+    const response = await ajax("/network/profile/logo", {
+      type: "POST",
+      data: form,
+      processData: false,
+      contentType: false,
+    });
+    this.profileData = { ...this.profileData, logo_url: response.logo_url };
+    this.markDirty();
+  }
+
+  @action
   changeListField(field, event) {
     const value = event.target.value;
     if (field === "fields_of_expertise") {
@@ -228,7 +269,7 @@ export default class ProfessionalNetworkEditorProfileState extends ProfessionalN
               [field]: value,
               ...(field === "is_current" && value ? { end_year: "" } : {}),
             }
-          : entry
+          : entry,
     );
     this.profileData = { ...this.profileData, [collection]: entries };
   }
@@ -236,7 +277,7 @@ export default class ProfessionalNetworkEditorProfileState extends ProfessionalN
   @action
   removeEntry(collection, index) {
     const entries = (this.profileData[collection] || []).filter(
-      (_, entryIndex) => entryIndex !== index
+      (_, entryIndex) => entryIndex !== index,
     );
     this.profileData = { ...this.profileData, [collection]: entries };
     this.markDirty();

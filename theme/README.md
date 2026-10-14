@@ -23,7 +23,7 @@ outlets continue to work normally.
 4. Configure the normal Discourse `logo` and `logo small` site settings with
    the Illyrian Brains assets. The theme does not embed a second copy of them.
 5. Check the homepage, topic list, topic page, composer, search, user profile,
-   admin login flow, and the Professional Network panel at desktop and mobile
+   admin login flow, and the Illyrian Brains Network panel at desktop and mobile
    widths before enabling it in production.
 
 For Git-based installation, publish `theme/` as its own repository (or a

@@ -2,6 +2,14 @@
   max-width: none;
 }
 
+.professional-network-directory__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .professional-network-directory {
   max-width: none;
 
@@ -112,6 +120,7 @@
   thead {
     position: sticky;
     z-index: 1;
+
     // table-wrap's overflow-x: auto forces its overflow-y to compute as
     // auto too, making it (not the page) the nearest scrolling ancestor
     // for this sticky thead -- so the offset is measured from the wrap's
@@ -165,11 +174,11 @@
     }
 
     &:hover {
-      background: var(--tertiary-very-low);
+      background: color-mix(in srgb, var(--pn-accent) 8%, var(--secondary));
     }
 
     &.is-selected {
-      background: var(--tertiary-low);
+      background: color-mix(in srgb, var(--pn-accent) 14%, var(--secondary));
     }
   }
 

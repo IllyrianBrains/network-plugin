@@ -3,6 +3,7 @@ export const KIND_LABELS = {
   organization: "Organization",
   city: "City",
   field: "Field of expertise",
+  group: "Group",
 };
 export const QUICK_FILTER_LIMIT = 6;
 

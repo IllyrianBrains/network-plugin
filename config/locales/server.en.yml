@@ -1,5 +1,13 @@
 en:
   site_settings:
-    professional_network_enabled: "Enable the professional network plugin (LinkedIn PDF profile imports, directory, city pages, and network graph)."
-    professional_network_category_id: "Category where members may create topics tied to the professional network plugin."
+    professional_network_enabled: "Enable the member network plugin (LinkedIn PDF imports, directories, city pages, recommendations, and network graph)."
+    professional_network_name: "Name shown throughout the member network interface, such as your community or program name."
+    professional_network_color: "Accent color used for buttons, active navigation, highlights, and focus states."
+    professional_network_profile_label_color: "Color of the small 'Professional profile' label above the Edit profile heading."
+    professional_network_linkedin_color: "LinkedIn brand color used only for LinkedIn post sharing and LinkedIn icons."
+    professional_network_background_color: "Background color used behind member network page content."
+    professional_network_card_color: "Background color used for cards, forms, and page headers."
+    professional_network_border_color: "Border color used around member network pages, cards, and fields."
+    professional_network_auto_contrast: "Automatically use light or dark button text based on the configured accent colors."
+    professional_network_category_id: "Category where members may create topics connected to the member network."
     professional_network_max_pdf_mb: "Maximum size, in megabytes, of a LinkedIn PDF profile a member may upload for import."

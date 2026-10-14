@@ -10,12 +10,15 @@ RSpec.describe ProfessionalNetwork::NetworkGraph do
   fab!(:other_website_user) { Fabricate(:user) }
   fab!(:acme_org_user) { Fabricate(:user) }
   fab!(:hidden_org_user) { Fabricate(:user) }
+  fab!(:alumni_group) { Fabricate(:group, name: "alumni") }
+  fab!(:staff_like_group) { Fabricate(:group, name: "reviewers", visibility_level: Group.visibility_levels[:staff]) }
+  fab!(:automatic_group) { Fabricate(:group, name: "auto-group", automatic: true) }
 
   let!(:tirana_profile) do
     ProfessionalNetwork::Profile.create!(
       user: tirana_user, website_key: "default", public_profile: true,
       data: { "name" => "Tirana One", "city" => "Tirana", "fields_of_expertise" => ["Engineering"],
-              "business_username" => acme_org_user.username },
+              "organization_usernames" => [acme_org_user.username] },
     )
   end
   let!(:tirana_profile_2) do
@@ -61,6 +64,27 @@ RSpec.describe ProfessionalNetwork::NetworkGraph do
     described_class.new(website_key: "default").data
   end
 
+  before do
+    alumni_group.add(tirana_user)
+    staff_like_group.add(tirana_user)
+    automatic_group.add(tirana_user)
+  end
+
+  it "links a member to the public, non-automatic groups they belong to" do
+    expect(graph[:edges]).to include(
+      { source: "member:#{tirana_user.username}", target: "group:alumni" },
+    )
+    expect(graph[:nodes]).to include(
+      a_hash_including(id: "group:alumni", type: "group", label: "alumni"),
+    )
+  end
+
+  it "excludes non-public and automatic groups from the graph" do
+    labels = graph[:nodes].select { |node| node[:type] == "group" }.map { |node| node[:label] }
+
+    expect(labels).not_to include("reviewers", "auto-group")
+  end
+
   it "excludes unpublished profiles and profiles from other websites" do
     labels = graph[:nodes].map { |node| node[:label] }
 
@@ -81,7 +105,7 @@ RSpec.describe ProfessionalNetwork::NetworkGraph do
 
     expect(graph[:nodes].count { |node| node[:id] == "city:tirana" }).to eq(1)
     expect(tirana_node[:count]).to eq(3) # 2 members + Acme Co
-    expect(engineering_node[:count]).to eq(2)
+    expect(engineering_node[:count]).to eq(3) # 2 members + Acme Co's sector
     expect(design_node[:count]).to eq(1)
   end
 
@@ -93,7 +117,7 @@ RSpec.describe ProfessionalNetwork::NetworkGraph do
     expect(graph[:edges]).to include({ source: "organization:#{acme_org_user.username}", target: "field:engineering" })
   end
 
-  it "links a member to the organization named in their business_username" do
+  it "links a member to every named organization" do
     expect(graph[:edges]).to include(
       { source: "member:#{tirana_user.username}", target: "organization:#{acme_org_user.username}" },
     )

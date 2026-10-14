@@ -1,5 +1,13 @@
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
+import { eq } from "discourse/truth-helpers";
+
+const PROJECT_STATUS_OPTIONS = [
+  { value: "planned", label: "Planned" },
+  { value: "active", label: "Active" },
+  { value: "completed", label: "Completed" },
+  { value: "paused", label: "Paused" },
+];
 
 const OrganizationProjects = <template>
   <fieldset
@@ -40,6 +48,33 @@ const OrganizationProjects = <template>
               }}
             ></textarea>
           </label>
+          <label>Status<select
+              {{on
+                "change"
+                (fn @editor.changeEntry "organization_projects" index "status")
+              }}
+            >{{#each PROJECT_STATUS_OPTIONS as |statusOption|}}<option
+                  selected={{eq project.status statusOption.value}}
+                  value={{statusOption.value}}
+                >{{statusOption.label}}</option>{{/each}}</select></label>
+          <label>Start date<input
+              type="date"
+              value={{project.starts_on}}
+              {{on
+                "input"
+                (fn
+                  @editor.changeEntry "organization_projects" index "starts_on"
+                )
+              }}
+            /></label>
+          <label>End date<input
+              type="date"
+              value={{project.ends_on}}
+              {{on
+                "input"
+                (fn @editor.changeEntry "organization_projects" index "ends_on")
+              }}
+            /></label>
           <label class="is-wide">What’s coming up next?
             <textarea
               placeholder="The next milestone, launch, event, or opportunity people can expect"

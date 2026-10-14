@@ -1,9 +1,18 @@
 import { action } from "@ember/object";
 import { ajax } from "discourse/lib/ajax";
-import { parseList } from "discourse/plugins/discourse-professional-network/discourse/lib/editor-base";
+import {
+  parseList,
+  parseSemicolonList,
+} from "discourse/plugins/discourse-professional-network/discourse/lib/editor-base";
 import ProfessionalNetworkEditorNetworkState from "discourse/plugins/discourse-professional-network/discourse/lib/editor-network-state";
 
 export default class ProfessionalNetworkEditorPersistence extends ProfessionalNetworkEditorNetworkState {
+  @action
+  async confirmProfileAccurate() {
+    await ajax("/network/profile/review", { type: "POST" });
+    this.message = "Profile marked as reviewed.";
+  }
+
   @action
   async resetProfile() {
     const confirmed = await this.dialog.deleteConfirm({
@@ -21,13 +30,13 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
     try {
       await ajax(
         `/network/profiles/${encodeURIComponent(this.targetUsername)}`,
-        { type: "DELETE" }
+        { type: "DELETE" },
       );
       window.location.reload();
     } catch (error) {
       this.error = this.saveError(
         error,
-        "Could not reset the professional profile"
+        "Could not reset the professional profile",
       );
       this.loading = false;
     }
@@ -71,12 +80,13 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
     }
     this.loading = true;
     this.error = null;
+    this.fieldErrors = {};
     try {
       const data = { ...this.profileData };
       data.fields_of_expertise = parseList(this.fieldsOfExpertiseInput);
       data.skills = parseList(this.skillsInput);
       data.languages = parseList(this.languagesInput);
-      data.certifications = parseList(this.certificationsInput);
+      data.certifications = parseSemicolonList(this.certificationsInput);
       data.preferred_locations = parseList(this.preferredLocationsInput);
       data.experience = (data.experience || []).map((entry) => ({
         ...entry,
@@ -107,7 +117,9 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
       data.open_to_consulting = this.openToConsulting;
       data.freelance_rate = this.pricing.trim();
       data.minimum_project_size = this.minimumEngagement.trim();
-      data.business_username = this.businessUsername.trim();
+      data.organization_usernames = parseList(
+        this.organizationUsernamesInput,
+      );
       data.services = this.services
         .map((offering) => ({
           title: offering.title.trim(),
@@ -155,7 +167,7 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
             profile_type: "person",
           }),
           contentType: "application/json",
-        }
+        },
       );
       this.profile = result.profile;
       this.profileData = this.splitStatusFields(result.profile || {});
@@ -166,7 +178,7 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
     } catch (error) {
       this.error = this.saveError(
         error,
-        "Could not save the professional profile"
+        "Could not save the professional profile",
       );
     } finally {
       this.loading = false;
@@ -176,6 +188,7 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
   async saveOrganization() {
     this.loading = true;
     this.error = null;
+    this.fieldErrors = {};
     try {
       const data = {
         ...this.profileData,
@@ -185,7 +198,7 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
             : "",
         organization_offerings: parseList(this.organizationOfferingsInput),
         organization_opportunities: parseList(
-          this.organizationOpportunitiesInput
+          this.organizationOpportunitiesInput,
         ),
         organization_needs: parseList(this.organizationNeedsInput),
         collaboration_interests: parseList(this.collaborationInterestsInput),
@@ -195,8 +208,18 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
             name: (project.name || "").trim(),
             description: (project.description || "").trim(),
             upcoming: (project.upcoming || "").trim(),
+            status: (project.status || "active").trim(),
+            starts_on: (project.starts_on || "").trim(),
+            ends_on: (project.ends_on || "").trim(),
           }))
           .filter((project) => project.name),
+        organization_contacts: (this.profileData.organization_contacts || [])
+          .map((contact) => ({
+            name: (contact.name || "").trim(),
+            role: (contact.role || "").trim(),
+            url: (contact.url || "").trim(),
+          }))
+          .filter((contact) => contact.name),
         organization_opportunity_details: (
           this.profileData.organization_opportunity_details || []
         )
@@ -219,7 +242,7 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
             public_profile: this.publicProfile,
           }),
           contentType: "application/json",
-        }
+        },
       );
       this.profile = result.profile;
       this.profileData = result.profile || {};
@@ -229,7 +252,7 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
     } catch (error) {
       this.error = this.saveError(
         error,
-        "Could not save the organization profile"
+        "Could not save the organization profile",
       );
     } finally {
       this.loading = false;
@@ -237,11 +260,27 @@ export default class ProfessionalNetworkEditorPersistence extends ProfessionalNe
   }
 
   saveError(error, fallback) {
-    return (
+    const message =
       error?.jqXHR?.responseJSON?.errors?.join(" ") ||
       error?.jqXHR?.responseJSON?.error ||
       error?.message ||
-      fallback
-    );
+      fallback;
+    const parameter = message.match(
+      /invalid parameters[^:]*:\s*([a-z0-9_]+)/i,
+    )?.[1];
+    if (parameter && this.showTabForInvalidParameter(parameter)) {
+      this.fieldErrors = { [parameter]: message };
+      return null;
+    }
+    return message;
+  }
+
+  showTabForInvalidParameter(parameter) {
+    if (parameter.startsWith("mentoring_")) {
+      this.activeTab = "mentoring";
+      this.sectionsExpanded = true;
+      return true;
+    }
+    return false;
   }
 }

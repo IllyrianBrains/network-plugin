@@ -4,6 +4,12 @@ require "tempfile"
 
 module ProfessionalNetwork
   class PdfParser
+    # Guards against malicious/malformed PDFs (decompression bombs, pdftotext
+    # hangs on pathological input): cap wall-clock time and extracted size
+    # instead of trusting the uploaded file to be well-behaved.
+    EXTRACTION_TIMEOUT_SECONDS = 15
+    MAX_EXTRACTED_BYTES = 2_000_000
+
     MONTHS = /(?:January|February|March|April|May|June|July|August|September|October|November|December)/i
     DATE_RANGE = /\A(#{MONTHS.source})\s+\d{4}\s*-\s*(?:Present|#{MONTHS.source}\s+\d{4})/i
     ISSUED_DATE = /\AIssued\s+#{MONTHS.source}\s+\d{4}/i
@@ -38,10 +44,45 @@ module ProfessionalNetwork
         file.binmode
         IO.copy_stream(io, file)
         file.flush
-        out, err, status = Open3.capture3("pdftotext", "-layout", "-nopgbrk", "-enc", "UTF-8", file.path, "-")
+        out, err, status = run_pdftotext(file.path)
         raise ArgumentError, "PDF extraction failed: #{err.to_s[0, 120]}" unless status.success?
-        out
+        # Strip NUL bytes before this text ever reaches a jsonb column --
+        # Postgres rejects \u0000 outright and a crafted PDF can emit it.
+        out.delete("\u0000")
       end
+    end
+
+    def self.run_pdftotext(path)
+      out = +""
+      err = +""
+      status = nil
+      Open3.popen3("pdftotext", "-layout", "-nopgbrk", "-enc", "UTF-8", path, "-") do |stdin, stdout, stderr, wait_thread|
+        stdin.close
+        out_thread = Thread.new { out << stdout.read.to_s }
+        err_thread = Thread.new { err << stderr.read.to_s }
+        if wait_thread.join(EXTRACTION_TIMEOUT_SECONDS)
+          out_thread.join
+          err_thread.join
+          status = wait_thread.value
+        else
+          begin
+            Process.kill("KILL", wait_thread.pid)
+          rescue Errno::ESRCH
+            nil
+          end
+          out_thread.kill
+          err_thread.kill
+          wait_thread.join
+          raise ArgumentError, "PDF extraction timed out; the file may be malformed or too complex"
+        end
+      end
+      if out.bytesize > MAX_EXTRACTED_BYTES
+        raise ArgumentError, "PDF extraction produced an unexpectedly large amount of text"
+      end
+      [out, err, status]
+    rescue Errno::ENOENT
+      raise ArgumentError, "PDF extraction is unavailable: the \"pdftotext\" tool (poppler-utils) is not " \
+                            "installed on this server. Ask an admin to install poppler-utils."
     end
 
     def self.parse(text)
@@ -54,7 +95,7 @@ module ProfessionalNetwork
       rest = lines.drop(first_page.length + 1).map(&:strip).reject { |l| l.empty? || l.match?(/\APage \d+ of \d+\z/) }
       main = right + rest
       name = right.first.to_s
-      headline = right[1..].take_while { |l| l != "Experience" && !l.match?(/\A.+, .+, (Germany|Albania|USA|United States)\z/) }.join(" ")
+      headline = right.drop(1).take_while { |l| l != "Experience" && !l.match?(/\A.+, .+, (Germany|Albania|USA|United States)\z/) }.join(" ")
       location = right.find { |l| l.match?(/,\s*.+,\s*(Germany|Albania|USA|United States)\z/i) }
       linkedin = left.join(" ").match(%r{(?:https?://)?(?:www\.)?linkedin\.com/in/[a-z0-9_-]+}i)&.to_s
       linkedin = linkedin&.sub(/\A(?:https?:\/\/)?/, "https://")

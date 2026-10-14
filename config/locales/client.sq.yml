@@ -4,7 +4,7 @@ sq:
       reset:
         confirm_button: "Rivendos"
       sidebar_section:
-        title: "Illyrian Brains"
+        title: "Rrjeti"
       profile_page:
         title: "Profili"
         user_tab: "Profili profesional"
@@ -22,3 +22,5 @@ sq:
         title: "Lidhjet"
       organization_directory:
         title: "Organizatat"
+      admin:
+        title: "Administrimi i rrjetit"

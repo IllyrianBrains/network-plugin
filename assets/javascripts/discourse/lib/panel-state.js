@@ -1,5 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import {
@@ -23,6 +24,10 @@ export default class ProfessionalNetworkPanel extends Component {
   @tracked aspirations = null;
   @tracked activity = [];
   @tracked linkedMembers = [];
+  @tracked privacyPreview = false;
+  @tracked reviewedAt = null;
+  @tracked verifiedAt = null;
+  @tracked stale = false;
 
   constructor() {
     super(...arguments);
@@ -50,6 +55,14 @@ export default class ProfessionalNetworkPanel extends Component {
     return !this.isOwnProfile && !!this.currentUser?.admin;
   }
 
+  get canVerifyOrganization() {
+    return (
+      this.profileType === "organization" &&
+      !!this.currentUser?.staff &&
+      !this.verifiedAt
+    );
+  }
+
   get availabilityLabel() {
     return AVAILABILITY_LABELS[this.profile?.availability] || null;
   }
@@ -68,9 +81,16 @@ export default class ProfessionalNetworkPanel extends Component {
     );
   }
 
-  get businessProfileUrl() {
-    const username = this.profile?.business_username;
-    return username ? `/u/${encodeURIComponent(username)}` : null;
+  get organizationProfiles() {
+    const usernames =
+      this.profile?.organization_usernames ||
+      (this.profile?.business_username
+        ? [this.profile.business_username]
+        : []);
+    return usernames.map((username) => ({
+      username,
+      url: `/u/${encodeURIComponent(username)}`,
+    }));
   }
 
   get contactPreferenceLabel() {
@@ -142,15 +162,35 @@ export default class ProfessionalNetworkPanel extends Component {
     );
   }
 
+  @action
+  async verifyOrganization() {
+    const response = await ajax(
+      `/network/profiles/${encodeURIComponent(this.username)}/verify`,
+      { type: "POST" }
+    );
+    this.verifiedAt = response.verified_at;
+  }
+
+  @action
+  togglePrivacyPreview() {
+    this.privacyPreview = !this.privacyPreview;
+    this.loadProfile();
+  }
+
   async loadProfile() {
     try {
       const result = await ajax(
-        `/network/profiles/${encodeURIComponent(this.username)}`
+        `/network/profiles/${encodeURIComponent(this.username)}`,
+        { data: this.privacyPreview ? { preview: "public" } : {} }
       );
       this.profile = result.profile;
       this.profileType = result.profile_type || "person";
       this.aspirations = result.aspirations || {};
       this.linkedMembers = result.linked_members || [];
+      this.privacyPreview = !!result.privacy_preview;
+      this.reviewedAt = result.reviewed_at;
+      this.verifiedAt = result.verified_at;
+      this.stale = !!result.stale;
     } catch {
       this.profile = null;
       this.aspirations = null;

@@ -1,6 +1,5 @@
 import { on } from "@ember/modifier";
 import { eq } from "discourse/truth-helpers";
-import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 
 const ProfessionalNetworkGraphFilters = <template>
@@ -48,11 +47,21 @@ const ProfessionalNetworkGraphFilters = <template>
         {{/each}}
       </select>
     </div>
-    <DButton
-      class="btn-flat professional-network-graph__filters-reset"
-      @action={{@graph.resetFilters}}
-      @translatedLabel="Reset filters"
-    />
+    <div class="professional-network-field">
+      <label for="professional-network-graph-group">Group</label>
+      <select
+        id="professional-network-graph-group"
+        {{on "change" @graph.updateGroupFilter}}
+      >
+        <option selected={{eq @graph.groupFilter ""}} value="">All groups</option>
+        {{#each @graph.groupOptions as |group|}}
+          <option
+            selected={{eq @graph.groupFilter group}}
+            value={{group}}
+          >{{group}}</option>
+        {{/each}}
+      </select>
+    </div>
   </div>
 </template>;
 

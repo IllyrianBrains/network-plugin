@@ -14,9 +14,9 @@ const ProfessionalNetworkPanelTabs = <template>
                 >{{@panel.profile.industry}}</p>{{/if}}
             </article>
           {{/if}}
-          {{#if @panel.profile.can_help_with}}<article><h3>Can help with</h3><p
+          {{#if @panel.profile.can_help_with}}<article><h3>What I offer</h3><p
               >{{@panel.profile.can_help_with}}</p></article>{{/if}}
-          {{#if @panel.profile.looking_for}}<article><h3>Looking for</h3><p
+          {{#if @panel.profile.looking_for}}<article><h3>What I need</h3><p
               >{{@panel.profile.looking_for}}</p></article>{{/if}}
           {{#if @panel.profile.ideal_connection}}<article><h3>Ideal connection</h3><p
               >{{@panel.profile.ideal_connection}}</p></article>{{/if}}

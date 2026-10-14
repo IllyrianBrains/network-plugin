@@ -6,17 +6,23 @@ ProfessionalNetwork::Engine.routes.draw do
   get "/profile/:username" => "profile_page#show", constraints: { username: RouteFormat.username }
   get "/share" => "share_page#show"
   get "/directory" => "directory_page#show"
-  get "/organizations" => "directory_page#show"
+  get "/organizations" => "organizations_page#show"
   get "/recommendations" => "recommendations_page#show"
+  get "/admin" => "admin_page#show"
 
   defaults format: :json do
     get "profiles" => "profiles#index"
+    get "directory/export" => "profiles#directory_export"
     get "profiles/:username/activity" => "activity#index", constraints: { username: RouteFormat.username }
     get "profiles/:username/related" => "profiles#related", constraints: { username: RouteFormat.username }
     get "profiles/:username" => "profiles#show", constraints: { username: RouteFormat.username }
     put "profile" => "profiles#update"
+    post "profile/review" => "profiles#review"
+    get "profile/export" => "profiles#export"
+    post "profile/logo" => "profile_logos#create"
     delete "profile" => "profiles#destroy"
     put "profiles/:username" => "profiles#update", constraints: { username: RouteFormat.username }
+    post "profiles/:username/verify" => "profiles#verify", constraints: { username: RouteFormat.username }
     delete "profiles/:username" => "profiles#destroy", constraints: { username: RouteFormat.username }
     post "imports" => "imports#create"
     get "imports/:id" => "imports#show"
@@ -33,6 +39,18 @@ ProfessionalNetwork::Engine.routes.draw do
 
     get "network-graph" => "network_graph#index"
     get "recommendation-results" => "recommendations#index"
+    get "recommendations/hidden" => "recommendations#hidden"
+    put "recommendations/:username/feedback" => "recommendations#feedback",
+        constraints: { username: RouteFormat.username }
+    post "recommendations/:username/introduction" => "recommendations#introduction",
+         constraints: { username: RouteFormat.username }
+
+    get "admin/health" => "admin_health#show"
+    get "admin/cities" => "admin_cities#index"
+    post "admin/cities" => "admin_cities#create"
+    put "admin/cities/:id" => "admin_cities#update"
+    post "admin/cities/:id/merge" => "admin_cities#merge"
+    delete "admin/cities/:id" => "admin_cities#destroy"
   end
 end
 

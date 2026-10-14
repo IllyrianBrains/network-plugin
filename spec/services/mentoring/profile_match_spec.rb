@@ -32,7 +32,9 @@ RSpec.describe ProfessionalNetwork::Mentoring::ProfileMatch do
       target_field: "Engineering Leadership",
     ).reasons
 
-    expect(reasons).to eq([{ weight: 6, label: "Open to mentoring in Engineering Leadership" }])
+      expect(reasons).to eq(
+        [{ weight: 6, category: "mentoring", label: "Open to mentoring in Engineering Leadership" }],
+      )
   end
 
   it "returns no reason when the candidate does not work in the target field" do

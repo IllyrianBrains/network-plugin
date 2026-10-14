@@ -177,6 +177,28 @@ const ProfessionalNetworkEditorLinkedinCareer = <template>
         >+ Add education</button>
       </div>
     </details>
+
+    <details
+      class="professional-network-form-section"
+      open={{@editor.sectionsExpanded}}
+    >
+      <summary><span>Certifications</span><small>Imported from LinkedIn</small></summary>
+      <div class="professional-network-form-section__body">
+        <div class="professional-network-field is-wide">
+          <label
+            for="professional-network-certifications"
+          >Certifications</label>
+          <input
+            id="professional-network-certifications"
+            placeholder="AWS Certified Developer; PMP"
+            type="text"
+            value={{@editor.certificationsInput}}
+            {{on "input" (fn @editor.changeListField "certifications")}}
+          />
+          <small>Separate multiple certifications with semicolons (;).</small>
+        </div>
+      </div>
+    </details>
   </fieldset>
 </template>;
 

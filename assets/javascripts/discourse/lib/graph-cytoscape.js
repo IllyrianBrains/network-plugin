@@ -1,14 +1,15 @@
 // Validated against the dataviz skill's accessibility checks (CVD + normal-vision
 // separation, all-pairs since any two node types can sit next to each other in a
-// force-directed layout). Only 3 hues clear the all-pairs floor, so "field" is a
-// deliberately neutral tone rather than a 4th competing hue -- its identity is
-// carried by shape (round-rectangle, vs. city's diamond) and its on-canvas label,
-// not by color.
+// force-directed layout). Only 3 hues clear the all-pairs floor, so "field" and
+// "group" are deliberately neutral tones rather than competing hues -- their
+// identity is carried by shape (round-rectangle / hexagon) and their on-canvas
+// label, not by color.
 const COLORS = {
   member: "#2a78d6",
   organization: "#eb6834",
   city: "#1baf7a",
   field: "#52525b",
+  group: "#8a8a93",
 };
 
 export const GRAPH_LAYOUT = {
@@ -47,6 +48,7 @@ export function buildCytoscapeStyle(nodes) {
     );
   const maxCityCount = maxCount("city");
   const maxFieldCount = maxCount("field");
+  const maxGroupCount = maxCount("group");
 
   return [
     {
@@ -82,6 +84,14 @@ export function buildCytoscapeStyle(nodes) {
         shape: "round-rectangle",
         width: `mapData(count, 1, ${maxFieldCount}, 24, 48)`,
         height: `mapData(count, 1, ${maxFieldCount}, 18, 32)`,
+      },
+    },
+    {
+      selector: "node[type = 'group']",
+      style: {
+        shape: "hexagon",
+        width: `mapData(count, 1, ${maxGroupCount}, 20, 40)`,
+        height: `mapData(count, 1, ${maxGroupCount}, 20, 40)`,
       },
     },
     {

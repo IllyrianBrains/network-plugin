@@ -1,6 +1,10 @@
 # Astro integration sample
 
-Copy the `src` files into your Astro project. Set `DISCOURSE_URL` in the Astro server environment (e.g. https://community.example.org) and `PROFESSIONAL_NETWORK_WEBSITE_KEY` to the stable key for this website (defaults to `default`). Use an Astro server adapter for on-demand pages.
+Copy the `src` files into your Astro project. Set `DISCOURSE_URL` in the Astro
+server environment (for example, `https://community.example.org`),
+`PROFESSIONAL_NETWORK_WEBSITE_KEY` to the stable key for this website (defaults
+to `default`), and `PROFESSIONAL_NETWORK_NAME` to the same display name selected
+in the plugin settings. Use an Astro server adapter for on-demand pages.
 
 This demonstrates **public profile reads** only. Private member profiles, upload, confirmation and selected post creation require per-user authentication and CSRF protections. Do not put a Discourse admin API key in Astro browser code.
 

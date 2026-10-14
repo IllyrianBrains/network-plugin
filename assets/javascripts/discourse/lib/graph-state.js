@@ -27,11 +27,16 @@ export default class ProfessionalNetworkGraphState extends Component {
   @tracked memberCount = 0;
   @tracked organizationCount = 0;
   @tracked visibleParticipantCount = 0;
+  @tracked memberPreview = false;
+  @tracked totalMemberCount = 0;
+  @tracked memberLimit = null;
   @tracked search = "";
   @tracked cityFilter = "";
   @tracked fieldFilter = "";
+  @tracked groupFilter = "";
   @tracked cityOptions = [];
   @tracked fieldOptions = [];
+  @tracked groupOptions = [];
   @tracked quickCities = [];
   @tracked quickFields = [];
   @tracked showFullNetwork = false;
@@ -51,7 +56,9 @@ export default class ProfessionalNetworkGraphState extends Component {
   });
 
   get hasActiveFilters() {
-    return Boolean(this.search || this.cityFilter || this.fieldFilter);
+    return Boolean(
+      this.search || this.cityFilter || this.fieldFilter || this.groupFilter
+    );
   }
 
   get participantCount() {
@@ -85,8 +92,12 @@ export default class ProfessionalNetworkGraphState extends Component {
         (node) => node.type === "organization"
       ).length;
       this.visibleParticipantCount = this.participantCount;
+      this.memberPreview = Boolean(response.preview);
+      this.memberLimit = response.member_limit ?? null;
+      this.totalMemberCount = response.total_members ?? this.memberCount;
       this.cityOptions = uniqueSortedLabels(this.nodes, "city");
       this.fieldOptions = uniqueSortedLabels(this.nodes, "field");
+      this.groupOptions = uniqueSortedLabels(this.nodes, "group");
       this.quickCities = topLabelsByCount(
         this.nodes,
         "city",
@@ -210,6 +221,7 @@ export default class ProfessionalNetworkGraphState extends Component {
       search: this.search,
       cityFilter: this.cityFilter,
       fieldFilter: this.fieldFilter,
+      groupFilter: this.groupFilter,
     });
 
     if (this.popupNode?.hasClass("pn-filtered")) {
@@ -232,6 +244,11 @@ export default class ProfessionalNetworkGraphState extends Component {
     this.applyFilters();
   }
 
+  setGroupFilter(value) {
+    this.groupFilter = value;
+    this.applyFilters();
+  }
+
   @action
   updateSearch(event) {
     this.search = event.target.value;
@@ -249,6 +266,11 @@ export default class ProfessionalNetworkGraphState extends Component {
   }
 
   @action
+  updateGroupFilter(event) {
+    this.setGroupFilter(event.target.value);
+  }
+
+  @action
   quickSelectCity(city) {
     this.setCityFilter(city);
   }
@@ -263,6 +285,7 @@ export default class ProfessionalNetworkGraphState extends Component {
     this.search = "";
     this.cityFilter = "";
     this.fieldFilter = "";
+    this.groupFilter = "";
     this.applyFilters();
   }
 

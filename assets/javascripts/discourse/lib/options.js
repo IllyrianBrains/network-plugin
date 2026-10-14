@@ -34,6 +34,25 @@ export const EXPERIENCE_LEVEL_OPTIONS = [
   { value: "expert", label: "Expert (10+ years)" },
 ];
 
+export const INDUSTRY_OPTIONS = [
+  "Agriculture and food",
+  "Arts, culture, and media",
+  "Climate and energy",
+  "Construction and real estate",
+  "Consulting and professional services",
+  "Education and research",
+  "Finance and insurance",
+  "Government and public policy",
+  "Healthcare and life sciences",
+  "Hospitality and tourism",
+  "Manufacturing",
+  "Nonprofit and social impact",
+  "Retail and consumer goods",
+  "Technology",
+  "Telecommunications",
+  "Transport and logistics",
+];
+
 export const MEETING_OPTIONS = [
   { value: "online", label: "Online" },
   { value: "in_person", label: "In person" },
@@ -43,7 +62,7 @@ export const MEETING_OPTIONS = [
 export const ORGANIZATION_TYPE_OPTIONS = [
   { value: "business", label: "Business" },
   { value: "ngo", label: "NGO / nonprofit" },
-  { value: "professional_network", label: "Professional network" },
+  { value: "professional_network", label: "Membership network" },
   { value: "community", label: "Community organization" },
   { value: "association", label: "Association" },
   { value: "foundation", label: "Foundation" },
@@ -64,6 +83,7 @@ export const RETURN_PLAN_OPTIONS = [
   { value: "no", label: "Not for now" },
   { value: "already_there", label: "Already living there" },
 ];
+
 
 export const AVAILABILITY_LABELS = labelsFor(AVAILABILITY_OPTIONS);
 export const BUSINESS_LABELS = labelsFor(BUSINESS_OPTIONS);

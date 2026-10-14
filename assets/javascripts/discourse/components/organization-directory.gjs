@@ -1,16 +1,19 @@
+import { service } from "@ember/service";
 import { eq } from "discourse/truth-helpers";
 import OrganizationDirectoryFilters from "discourse/plugins/discourse-professional-network/discourse/components/organization-directory-filters";
 import OrganizationDirectoryState from "discourse/plugins/discourse-professional-network/discourse/lib/organization-directory-state";
 
 export default class ProfessionalNetworkOrganizationDirectory extends OrganizationDirectoryState {
+  @service siteSettings;
+
   <template>
     <div
       class="professional-network-directory professional-network-organization-directory"
     >
       <header>
-        <p class="professional-network-panel__eyebrow">Professional network</p>
+        <p class="professional-network-panel__eyebrow">{{this.siteSettings.professional_network_name}}</p>
         <h2>Organizations</h2>
-        <p>Discover businesses, NGOs, professional networks, and community
+        <p>Discover businesses, NGOs, member networks, and community
           organizations.</p>
       </header>
       <nav

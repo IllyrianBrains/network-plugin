@@ -10,7 +10,6 @@ import ProfessionalNetworkEditorMentoring from "discourse/plugins/discourse-prof
 import ProfessionalNetworkEditorRecommendationPriorities from "discourse/plugins/discourse-professional-network/discourse/components/editor-recommendation-priorities";
 import ProfessionalNetworkEditorReturn from "discourse/plugins/discourse-professional-network/discourse/components/editor-return";
 import ProfessionalNetworkEditorSettings from "discourse/plugins/discourse-professional-network/discourse/components/editor-settings";
-import ProfessionalNetworkEditorStatus from "discourse/plugins/discourse-professional-network/discourse/components/editor-status";
 import ProfessionalNetworkOrganizationEditor from "discourse/plugins/discourse-professional-network/discourse/components/organization-editor";
 import ProfessionalNetworkEditorPersistence from "discourse/plugins/discourse-professional-network/discourse/lib/editor-persistence";
 
@@ -78,19 +77,13 @@ export default class ProfessionalNetworkEditor extends ProfessionalNetworkEditor
                 class="btn-flat"
                 type="button"
                 {{on "click" (fn this.showTab "networking")}}
-              >Connections</button>
-              <button
-                aria-pressed={{eq this.activeTab "status"}}
-                class="btn-flat"
-                type="button"
-                {{on "click" (fn this.showTab "status")}}
-              >Status</button>
+              >Networking</button>
               <button
                 aria-pressed={{eq this.activeTab "business"}}
                 class="btn-flat"
                 type="button"
                 {{on "click" (fn this.showTab "business")}}
-              >Business</button>
+              >Organisation</button>
               <button
                 aria-pressed={{eq this.activeTab "mentoring"}}
                 class="btn-flat"
@@ -111,16 +104,6 @@ export default class ProfessionalNetworkEditor extends ProfessionalNetworkEditor
               >Settings</button>
             </nav>
 
-            {{#if this.hasCollapsibleSections}}
-              <div class="professional-network-section-toggle">
-                <button
-                  class="btn btn-flat"
-                  type="button"
-                  {{on "click" this.toggleSectionsExpanded}}
-                >{{if this.sectionsExpanded "Collapse all" "Edit all"}}</button>
-              </div>
-            {{/if}}
-
             {{#if (eq this.activeTab "linkedin")}}
               <ProfessionalNetworkEditorLinkedin @editor={{this}} />
             {{else if (eq this.activeTab "networking")}}
@@ -128,8 +111,6 @@ export default class ProfessionalNetworkEditor extends ProfessionalNetworkEditor
                 @editor={{this}}
               />
               <ProfessionalNetworkEditorIntroductions @editor={{this}} />
-            {{else if (eq this.activeTab "status")}}
-              <ProfessionalNetworkEditorStatus @editor={{this}} />
               <ProfessionalNetworkEditorAspirations @editor={{this}} />
             {{else if (eq this.activeTab "business")}}
               <ProfessionalNetworkEditorBusiness @editor={{this}} />
@@ -156,9 +137,21 @@ export default class ProfessionalNetworkEditor extends ProfessionalNetworkEditor
                   >All changes saved.</small>{{/if}}
               </div>
               <div class="professional-network-save-bar__actions">
+                {{#if this.hasCollapsibleSections}}
+                  <button
+                    aria-pressed={{this.sectionsExpanded}}
+                    class="btn btn-flat professional-network-section-toggle"
+                    type="button"
+                    {{on "click" this.toggleSectionsExpanded}}
+                  >{{if
+                      this.sectionsExpanded
+                      "Collapse all"
+                      "Edit all"
+                    }}</button>
+                {{/if}}
                 <a
                   class="professional-network-public-profile-link"
-                  href="/u/{{this.currentUser.username}}/professional-network"
+                  href="/u/{{this.targetUsername}}/professional-profile"
                 >View public profile</a>
                 <button
                   class="btn btn-primary"

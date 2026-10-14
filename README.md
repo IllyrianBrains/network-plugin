@@ -1,9 +1,10 @@
-# Discourse Professional Network
+# Member Network for Discourse
 
-A Discourse plugin for member-approved LinkedIn PDF profile imports, selected
-LinkedIn post links, an organization/business directory, a city directory,
-and a member network graph. It does not scrape LinkedIn or sync a member's
-full activity.
+An independently branded member and organization directory for Discourse.
+The plugin supports member-approved LinkedIn PDF profile imports,
+selected LinkedIn post links, city discovery, introductions, recommendations,
+and a network graph. It does not scrape LinkedIn or sync a member's full
+activity.
 
 ## Requirements
 
@@ -29,7 +30,10 @@ Then run `./launcher rebuild app`. Alternatively, `make plugin` builds
 `containers/plugins/discourse-professional-network/` and rebuild.
 
 Enable the plugin with the `professional_network_enabled` site setting, and
-set `professional_network_category_id` to a category where members may post.
+set `professional_network_name` to the name of your community or program.
+Set `professional_network_category_id` to a category where members may post.
+Use `professional_network_profile_label_color` when the “Professional profile”
+label above the profile editor needs stronger contrast against the page header.
 
 ## Local development
 
@@ -68,6 +72,39 @@ a different environment file.
 Imports are private drafts until the member confirms them. Do not upload
 another person's PDF without permission, and do not publish private CV data
 without consent.
+
+## Profile trust and portability
+
+Members can preview their profile as the public sees it, confirm that it is
+still accurate, and export their complete professional-network record as JSON.
+Profiles show freshness and organization-verification indicators. Staff can
+verify organization profiles; private aspiration fields remain visible only to
+the owner and staff and are included only in the owner's export.
+
+## Introductions and recommendation feedback
+
+Members can hide an individual recommendation, mark it helpful, refresh the
+list, or request an introduction when the recommended member opted into
+introductions. A request creates a Discourse private message rather than a new
+messaging system. Only an explicit helpful rating following an introduction is
+used for the recommendation algorithm's consented interaction-quality signal.
+
+## Administration
+
+Administrators can open **My profile → Settings → Network administration** to
+manage cities, aliases, coordinates and duplicate-city merges. The same screen
+reports published, private, stale and verified profile health, pending imports,
+missing city coordinates, broken organization links, and failed LinkedIn
+previews. Staff can export the public directory as CSV.
+
+Organization profiles support retained logo uploads, multiple public contact
+people, dated projects with lifecycle status, and detailed opportunities.
+Expired opportunities remain in the owner's editor but are archived from
+public profile serialization.
+
+The plugin palette has separate settings for the general accent, LinkedIn
+branding, page background, cards and borders. Automatic contrast selects light
+or dark text for configurable accent colors.
 
 ## People recommendations
 

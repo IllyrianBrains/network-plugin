@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 module ProfessionalNetwork
   class ActivityController < BaseController
+    requires_plugin ProfessionalNetwork::PLUGIN_NAME
     MAX_ITEMS = 20
 
     def index

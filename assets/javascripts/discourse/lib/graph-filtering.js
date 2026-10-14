@@ -1,11 +1,14 @@
 const PARTICIPANT_SELECTOR = "[type = 'member'], [type = 'organization']";
-const HUB_SELECTOR = "[type = 'city'], [type = 'field']";
+const HUB_SELECTOR = "[type = 'city'], [type = 'field'], [type = 'group']";
 
-// Hides member/organization nodes that don't match the current search/city/field filters
-// (and any city/field hub left with no visible participants), via a `pn-filtered` class
+// Hides member/organization nodes that don't match the current search/city/field/group
+// filters (and any hub left with no visible participants), via a `pn-filtered` class
 // the cytoscape stylesheet maps to `display: none`. Returns the number of still-visible
 // members and organizations.
-export function applyGraphFilters(cy, { search, cityFilter, fieldFilter }) {
+export function applyGraphFilters(
+  cy,
+  { search, cityFilter, fieldFilter, groupFilter }
+) {
   const query = search.trim().toLowerCase();
 
   cy.elements().removeClass("pn-filtered");
@@ -31,6 +34,16 @@ export function applyGraphFilters(cy, { search, cityFilter, fieldFilter }) {
         (neighbor) =>
           neighbor.data("type") === "field" &&
           neighbor.data("label") === fieldFilter
+      )
+    ) {
+      return true;
+    }
+    if (
+      groupFilter &&
+      !neighbors.some(
+        (neighbor) =>
+          neighbor.data("type") === "group" &&
+          neighbor.data("label") === groupFilter
       )
     ) {
       return true;

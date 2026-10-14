@@ -17,7 +17,7 @@ const OrganizationOverview = <template>
             for="professional-network-organization-name"
           >Name</label><input
             id="professional-network-organization-name"
-            placeholder="e.g. Illyrian Brains Network"
+            placeholder="e.g. Regional Founders Network"
             type="text"
             value={{@editor.profileData.name}}
             {{on "input" (fn @editor.changeProfileField "name")}}
@@ -41,8 +41,8 @@ const OrganizationOverview = <template>
                 value={{choice.value}}
               >{{choice.label}}</option>
             {{/each}}
-          </select><small>Choose “Professional network” for organizations such
-            as Illyrian Brains Network.</small></div>
+          </select><small>Choose “Membership network” for associations, alumni
+            groups, and other member-led organizations.</small></div>
         {{#if (eq @editor.profileData.organization_type "other")}}
           <div class="professional-network-field"><label
               for="professional-network-organization-type-other"

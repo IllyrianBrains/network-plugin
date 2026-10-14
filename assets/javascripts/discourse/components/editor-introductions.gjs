@@ -3,6 +3,7 @@ import { on } from "@ember/modifier";
 import { eq } from "discourse/truth-helpers";
 import {
   CONTACT_OPTIONS,
+  INDUSTRY_OPTIONS,
   MEETING_OPTIONS,
 } from "discourse/plugins/discourse-professional-network/discourse/lib/options";
 
@@ -22,11 +23,17 @@ const ProfessionalNetworkEditorIntroductions = <template>
           <label for="professional-network-industry">Industry or sector</label>
           <input
             id="professional-network-industry"
+            list="professional-network-industries"
             placeholder="e.g. Climate technology"
             type="text"
             value={{@editor.profileData.industry}}
             {{on "input" (fn @editor.changeProfileField "industry")}}
           />
+          <datalist id="professional-network-industries">
+            {{#each INDUSTRY_OPTIONS as |industry|}}
+              <option value={{industry}}></option>
+            {{/each}}
+          </datalist>
         </div>
         <div class="professional-network-field">
           <label for="professional-network-current-role">Current role</label>
@@ -38,37 +45,6 @@ const ProfessionalNetworkEditorIntroductions = <template>
             {{on "input" (fn @editor.changeProfileField "current_role")}}
           />
         </div>
-      </div>
-    </details>
-
-    <details
-      class="professional-network-form-section"
-      open={{@editor.sectionsExpanded}}
-    >
-      <summary><span>What you offer & need</span></summary>
-      <div class="professional-network-form-section__body">
-        <div class="professional-network-field is-wide">
-          <label for="professional-network-can-help">What can you help others
-            with?</label>
-          <textarea
-            id="professional-network-can-help"
-            placeholder="Topics, introductions, advice, or practical support you can offer"
-            rows="4"
-            value={{@editor.profileData.can_help_with}}
-            {{on "input" (fn @editor.changeProfileField "can_help_with")}}
-          ></textarea>
-        </div>
-        <div class="professional-network-field is-wide">
-          <label for="professional-network-looking-for">What are you looking
-            for?</label>
-          <textarea
-            id="professional-network-looking-for"
-            placeholder="The opportunity, advice, or connection you need"
-            rows="4"
-            value={{@editor.profileData.looking_for}}
-            {{on "input" (fn @editor.changeProfileField "looking_for")}}
-          ></textarea>
-        </div>
         <div class="professional-network-field is-wide">
           <label for="professional-network-ideal-connection">Who would be an
             ideal connection?</label>
@@ -78,6 +54,48 @@ const ProfessionalNetworkEditorIntroductions = <template>
             rows="3"
             value={{@editor.profileData.ideal_connection}}
             {{on "input" (fn @editor.changeProfileField "ideal_connection")}}
+          ></textarea>
+        </div>
+      </div>
+    </details>
+
+    <details
+      class="professional-network-form-section"
+      open={{@editor.sectionsExpanded}}
+    >
+      <summary><span>What you offer</span><small>How you can support other
+          members</small></summary>
+      <div class="professional-network-form-section__body">
+        <div class="professional-network-field is-wide">
+          <label for="professional-network-can-help">What can you help others
+            with?</label>
+          <textarea
+            id="professional-network-can-help"
+            placeholder="Topics, introductions, advice, or practical support you can offer"
+            rows="5"
+            value={{@editor.profileData.can_help_with}}
+            {{on "input" (fn @editor.changeProfileField "can_help_with")}}
+          ></textarea>
+        </div>
+      </div>
+    </details>
+
+    <details
+      class="professional-network-form-section"
+      open={{@editor.sectionsExpanded}}
+    >
+      <summary><span>What you need</span><small>The help or connections you are
+          seeking</small></summary>
+      <div class="professional-network-form-section__body">
+        <div class="professional-network-field is-wide">
+          <label for="professional-network-looking-for">What are you looking
+            for?</label>
+          <textarea
+            id="professional-network-looking-for"
+            placeholder="The opportunity, advice, or connection you need"
+            rows="4"
+            value={{@editor.profileData.looking_for}}
+            {{on "input" (fn @editor.changeProfileField "looking_for")}}
           ></textarea>
         </div>
       </div>

@@ -2,27 +2,33 @@
 
 module ProfessionalNetwork
   class DirectorySearch
-    LIMIT = 100
+    DEFAULT_PAGE_SIZE = 25
+    MAX_PAGE_SIZE = 100
+
+    attr_reader :page, :per_page, :total_count
 
     def initialize(website_key:, profile_type: "person", query: nil, city: nil, country: nil, field: nil, skill: nil,
                     experience_level: nil, membership_type: nil, availability: nil, open_to_consulting: nil,
                     offering_services: nil, aspiration_field: nil, aspiration_subfield: nil,
                     mentoring_interest: nil, business_interest: nil, organization_type: nil,
                     sector: nil, stage: nil, collaboration_interest: nil, offers_mentoring: nil,
-                    include_unpublished: false)
+                    industry: nil, include_unpublished: false, page: 1, per_page: DEFAULT_PAGE_SIZE)
       @website_key = website_key
       @profile_type = profile_type.presence || "person"
-      raise Discourse::InvalidParameters.new(:profile_type) unless Profile::PROFILE_TYPES.include?(@profile_type)
+      raise Discourse::InvalidParameters.new(:profile_type) if Profile::PROFILE_TYPES.exclude?(@profile_type)
       @filters = { city: city, country: country, field: field, skill: skill,
                    experience_level: experience_level, membership_type: membership_type,
                    availability: availability, organization_type: organization_type,
                    sector: sector, stage: stage,
-                   collaboration_interest: collaboration_interest }.transform_values { |value| value.to_s.strip.presence }
+                   collaboration_interest: collaboration_interest,
+                   industry: industry }.transform_values { |value| value.to_s.strip.presence }
       @open_to_consulting = ActiveModel::Type::Boolean.new.cast(open_to_consulting)
       @offering_services = ActiveModel::Type::Boolean.new.cast(offering_services)
       @offers_mentoring = ActiveModel::Type::Boolean.new.cast(offers_mentoring)
       @include_unpublished = ActiveModel::Type::Boolean.new.cast(include_unpublished)
       @query = query.to_s.strip.first(100).presence
+      @page = [page.to_i, 1].max
+      @per_page = per_page.to_i.clamp(1, MAX_PAGE_SIZE)
       @aspiration_filters = {
         field: aspiration_field,
         subfield: aspiration_subfield,
@@ -43,6 +49,7 @@ module ProfessionalNetwork
       scope = exact(scope, "organization_type", @filters[:organization_type])
       scope = partial(scope, "sector", @filters[:sector])
       scope = partial(scope, "stage", @filters[:stage])
+      scope = partial(scope, "industry", @filters[:industry])
       scope = boolean_true(scope, "open_to_consulting") if @open_to_consulting
       scope = non_empty_array(scope, "services") if @offering_services
       scope = opportunity_kind(scope, "mentoring") if @offers_mentoring
@@ -50,12 +57,27 @@ module ProfessionalNetwork
       scope = array_contains_partial(scope, "skills", @filters[:skill])
       scope = array_contains_partial(scope, "collaboration_interests", @filters[:collaboration_interest])
       scope = text_search(scope, @query) if @query
-      profiles = scope.order(Arel.sql("lower(professional_network_profiles.data->>'name') ASC"), :id).to_a
-      profiles.select! { |profile| matches_aspirations?(profile) } if @profile_type == "person" && @aspiration_filters.values.any?
-      profiles.first(LIMIT)
+      scope = scope.order(Arel.sql("lower(professional_network_profiles.data->>'name') ASC"), :id)
+      return paginate_aspirations(scope) if @profile_type == "person" && @aspiration_filters.values.any?
+
+      @total_count = scope.count
+      clamp_page
+      scope.offset((@page - 1) * @per_page).limit(@per_page).to_a
     end
 
     private
+
+    def paginate_aspirations(scope)
+      profiles = scope.to_a.select { |profile| matches_aspirations?(profile) }
+      @total_count = profiles.length
+      clamp_page
+      profiles.slice((@page - 1) * @per_page, @per_page) || []
+    end
+
+    def clamp_page
+      last_page = [(@total_count.to_f / @per_page).ceil, 1].max
+      @page = [@page, last_page].min
+    end
 
     def exact(scope, key, value)
       return scope unless value

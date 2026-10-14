@@ -1,11 +1,15 @@
+import { service } from "@ember/service";
 import ProfessionalNetworkDirectoryFilters from "discourse/plugins/discourse-professional-network/discourse/components/directory-filters";
 import ProfessionalNetworkDirectoryResults from "discourse/plugins/discourse-professional-network/discourse/components/directory-results";
 import ProfessionalNetworkDirectoryState from "discourse/plugins/discourse-professional-network/discourse/lib/directory-state";
 
 export default class ProfessionalNetworkDirectory extends ProfessionalNetworkDirectoryState {
+  @service siteSettings;
+
   <template>
     <div class="professional-network-directory">
       <header>
+        <p class="professional-network-panel__eyebrow">{{this.siteSettings.professional_network_name}}</p>
         <h2>Members</h2>
         <p>Search public profiles and filter by location, expertise, and what
           members are looking for.</p>

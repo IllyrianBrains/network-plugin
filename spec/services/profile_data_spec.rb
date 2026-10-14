@@ -240,6 +240,22 @@ RSpec.describe ProfessionalNetwork::ProfileData do
       expect(result["business_username"]).to eq("acme-studio")
     end
 
+    it "accepts multiple organization account usernames" do
+      result = described_class.normalize(
+        "organization_usernames" => %w[acme-studio community-group],
+      )
+
+      expect(result["organization_usernames"]).to eq(
+        %w[acme-studio community-group],
+      )
+    end
+
+    it "rejects an unsafe organization account username" do
+      expect do
+        described_class.normalize("organization_usernames" => ["../admin"])
+      end.to raise_error(Discourse::InvalidParameters)
+    end
+
     it "rejects an unsafe business account username" do
       expect { described_class.normalize("business_username" => "../admin") }
         .to raise_error(Discourse::InvalidParameters)

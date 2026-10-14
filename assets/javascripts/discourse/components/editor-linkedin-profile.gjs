@@ -46,27 +46,32 @@ const ProfessionalNetworkEditorLinkedinProfile = <template>
             {{on "input" (fn @editor.changeProfileField "company")}}
           />
         </div>
-        <div class="professional-network-field">
-          <label for="professional-network-city">City</label>
-          <input
-            id="professional-network-city"
-            maxlength="120"
-            placeholder="Berlin"
-            type="text"
-            value={{@editor.profileData.city}}
-            {{on "input" (fn @editor.changeProfileField "city")}}
-          />
-        </div>
-        <div class="professional-network-field">
-          <label for="professional-network-country">Country</label>
-          <input
-            id="professional-network-country"
-            maxlength="120"
-            placeholder="Germany"
-            type="text"
-            value={{@editor.profileData.country}}
-            {{on "input" (fn @editor.changeProfileField "country")}}
-          />
+        <div class="professional-network-field-group is-wide">
+          <span class="professional-network-field-group__label">Location</span>
+          <div class="professional-network-field-group__row">
+            <div class="professional-network-field">
+              <label for="professional-network-city">City</label>
+              <input
+                id="professional-network-city"
+                maxlength="120"
+                placeholder="Berlin"
+                type="text"
+                value={{@editor.profileData.city}}
+                {{on "input" (fn @editor.changeProfileField "city")}}
+              />
+            </div>
+            <div class="professional-network-field">
+              <label for="professional-network-country">Country</label>
+              <input
+                id="professional-network-country"
+                maxlength="120"
+                placeholder="Germany"
+                type="text"
+                value={{@editor.profileData.country}}
+                {{on "input" (fn @editor.changeProfileField "country")}}
+              />
+            </div>
+          </div>
         </div>
         <div class="professional-network-field is-wide">
           <label for="professional-network-about">About you</label>
@@ -79,6 +84,16 @@ const ProfessionalNetworkEditorLinkedinProfile = <template>
             {{on "input" (fn @editor.changeProfileField "about")}}
           ></textarea>
         </div>
+        <div class="professional-network-field is-wide">
+          <label for="professional-network-languages">Languages</label>
+          <input
+            id="professional-network-languages"
+            placeholder="Albanian, English, German"
+            type="text"
+            value={{@editor.languagesInput}}
+            {{on "input" (fn @editor.changeListField "languages")}}
+          />
+        </div>
       </div>
     </details>
 
@@ -86,7 +101,7 @@ const ProfessionalNetworkEditorLinkedinProfile = <template>
       class="professional-network-form-section"
       open={{@editor.sectionsExpanded}}
     >
-      <summary><span>Expertise, skills & languages</span></summary>
+      <summary><span>Expertise & skills</span></summary>
       <div class="professional-network-form-section__body">
         <div class="professional-network-field is-wide">
           <label for="professional-network-expertise">Fields of expertise</label>
@@ -106,28 +121,6 @@ const ProfessionalNetworkEditorLinkedinProfile = <template>
             type="text"
             value={{@editor.skillsInput}}
             {{on "input" (fn @editor.changeListField "skills")}}
-          />
-        </div>
-        <div class="professional-network-field is-wide">
-          <label for="professional-network-languages">Languages</label>
-          <input
-            id="professional-network-languages"
-            placeholder="Albanian, English, German"
-            type="text"
-            value={{@editor.languagesInput}}
-            {{on "input" (fn @editor.changeListField "languages")}}
-          />
-        </div>
-        <div class="professional-network-field is-wide">
-          <label
-            for="professional-network-certifications"
-          >Certifications</label>
-          <input
-            id="professional-network-certifications"
-            placeholder="AWS Certified Developer, PMP"
-            type="text"
-            value={{@editor.certificationsInput}}
-            {{on "input" (fn @editor.changeListField "certifications")}}
           />
         </div>
       </div>

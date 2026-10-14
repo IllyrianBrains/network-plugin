@@ -90,11 +90,29 @@ const ProfessionalNetworkOrganizationProfile = <template>
           >Projects</span><small>{{@panel.profile.organization_projects.length}}
             shared</small></summary><div class="professional-network-list">
           {{#each @panel.profile.organization_projects as |project|}}
-            <article><h3>{{project.name}}</h3>{{#if project.description}}<p
-                >{{project.description}}</p>{{/if}}{{#if project.upcoming}}<p
+            <article><h3>{{project.name}}</h3><small>{{project.status}}{{#if
+                  project.starts_on
+                }} · {{project.starts_on}}{{/if}}{{#if project.ends_on}}
+                  –
+                  {{project.ends_on}}{{/if}}</small>{{#if
+                project.description
+              }}<p>{{project.description}}</p>{{/if}}{{#if project.upcoming}}<p
                   class="professional-network-project-upcoming"
                 ><strong>Coming up next</strong><br
                   />{{project.upcoming}}</p>{{/if}}</article>
+          {{/each}}
+        </div></details>
+    {{/if}}
+    {{#if @panel.profile.organization_contacts.length}}
+      <details class="professional-network-form-section"><summary><span>Contact
+            people</span></summary><div class="professional-network-list">
+          {{#each @panel.profile.organization_contacts as |contact|}}
+            <article><h3>{{contact.name}}</h3>{{#if contact.role}}<p
+                >{{contact.role}}</p>{{/if}}{{#if contact.url}}<p><a
+                    href={{contact.url}}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >Contact</a></p>{{/if}}</article>
           {{/each}}
         </div></details>
     {{/if}}

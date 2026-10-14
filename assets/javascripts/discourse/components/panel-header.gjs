@@ -1,3 +1,4 @@
+import { on } from "@ember/modifier";
 import { and, eq, or } from "discourse/truth-helpers";
 
 const ProfessionalNetworkPanelHeader = <template>
@@ -9,6 +10,10 @@ const ProfessionalNetworkPanelHeader = <template>
       />{{/if}}
     <div>
       <p class="professional-network-panel__eyebrow">Professional profile</p>
+      <div class="professional-network-profile-trust">
+        {{#if @panel.verifiedAt}}<span>Verified organization</span>{{/if}}
+        {{#if @panel.stale}}<span class="is-stale">May need updating</span>{{/if}}
+      </div>
       <h2>{{if
           (eq @panel.profileType "organization")
           @panel.profile.name
@@ -79,6 +84,15 @@ const ProfessionalNetworkPanelHeader = <template>
       {{/if}}
     </div>
     <div class="professional-network-panel__links">
+      {{#if @panel.isOwnProfile}}<button
+          class="btn btn-default"
+          type="button"
+          {{on "click" @panel.togglePrivacyPreview}}
+        >{{if
+            @panel.privacyPreview
+            "Exit public preview"
+            "Preview as public"
+          }}</button>{{/if}}
       {{#if @panel.isOwnProfile}}<a
           class="btn btn-primary"
           href="/network/profile"
@@ -87,16 +101,21 @@ const ProfessionalNetworkPanelHeader = <template>
           class="btn btn-default"
           href="/network/profile/{{@panel.username}}"
         >Edit profile (admin)</a>{{/if}}
-      {{#if @panel.profile.linkedin_url}}<a
+      {{#if @panel.canVerifyOrganization}}<button
           class="btn btn-default"
+          type="button"
+          {{on "click" @panel.verifyOrganization}}
+        >Verify organization</button>{{/if}}
+      {{#if @panel.profile.linkedin_url}}<a
+          class="btn btn-default professional-network-linkedin-link"
           href={{@panel.profile.linkedin_url}}
           rel="noopener noreferrer"
           target="_blank"
         >LinkedIn</a>{{/if}}
-      {{#if @panel.businessProfileUrl}}<a
+      {{#each @panel.organizationProfiles as |organization|}}<a
           class="btn btn-default"
-          href={{@panel.businessProfileUrl}}
-        >Business profile</a>{{/if}}
+          href={{organization.url}}
+        >{{organization.username}}</a>{{/each}}
       {{#if @panel.profile.website}}<a
           class="btn btn-default"
           href={{@panel.profile.website}}

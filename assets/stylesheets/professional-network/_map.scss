@@ -24,7 +24,7 @@
   border: 1px solid var(--pn-border);
   border-radius: var(--ib-radius, 0.6rem);
   background: var(--secondary);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 6px 20px rgb(0, 0, 0, 0.16);
 
   > button {
     float: right;
@@ -72,4 +72,13 @@
     max-height: min(60%, 22rem);
     border-radius: var(--ib-radius, 0.6rem) var(--ib-radius, 0.6rem) 0 0;
   }
+}
+
+.professional-network-map__preview-note {
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.65rem;
+  border: 1px dashed var(--pn-border);
+  border-radius: var(--ib-radius, 0.6rem);
+  color: var(--primary-medium);
+  font-size: var(--font-down-1);
 }

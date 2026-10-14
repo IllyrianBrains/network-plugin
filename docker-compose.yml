@@ -30,7 +30,17 @@ services:
         condition: service_healthy
     environment:
       RAILS_ENV: development
-      DATABASE_URL: postgresql://discourse:discourse_dev_only@postgres:5432/discourse_development
+      # No blanket DATABASE_URL here on purpose: it would override
+      # config/database.yml's per-RAILS_ENV database name (discourse_test
+      # when someone runs `RAILS_ENV=test bin/rspec` inside this container),
+      # pointing test runs at the real dev database instead of the isolated
+      # test one. PG* are libpq's own standard env vars, so the pg gem still
+      # picks up host/port/credentials for every RAILS_ENV without that
+      # override.
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: discourse
+      PGPASSWORD: discourse_dev_only
       DISCOURSE_DB_HOST: postgres
       DISCOURSE_DB_PORT: "5432"
       DISCOURSE_DB_USERNAME: discourse
@@ -75,7 +85,11 @@ services:
         condition: service_healthy
     environment:
       RAILS_ENV: development
-      DATABASE_URL: postgresql://discourse:discourse_dev_only@postgres:5432/discourse_development
+      # See the web service above for why there's no blanket DATABASE_URL.
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: discourse
+      PGPASSWORD: discourse_dev_only
       DISCOURSE_DB_HOST: postgres
       DISCOURSE_DB_PORT: "5432"
       DISCOURSE_DB_USERNAME: discourse

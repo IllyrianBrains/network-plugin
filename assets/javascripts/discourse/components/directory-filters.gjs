@@ -8,6 +8,7 @@ import {
   AVAILABILITY_OPTIONS,
   BUSINESS_OPTIONS,
   EXPERIENCE_LEVEL_OPTIONS,
+  INDUSTRY_OPTIONS,
 } from "discourse/plugins/discourse-professional-network/discourse/lib/options";
 
 const ProfessionalNetworkDirectoryFilters = <template>
@@ -105,6 +106,21 @@ const ProfessionalNetworkDirectoryFilters = <template>
             value={{@directory.filters.skill}}
             {{on "input" (fn @directory.changeFilter "skill")}}
           />
+        </div>
+        <div class="professional-network-field">
+          <label for="professional-network-directory-industry">Industry</label>
+          <input
+            id="professional-network-directory-industry"
+            list="professional-network-directory-industries"
+            type="text"
+            value={{@directory.filters.industry}}
+            {{on "input" (fn @directory.changeFilter "industry")}}
+          />
+          <datalist id="professional-network-directory-industries">
+            {{#each INDUSTRY_OPTIONS as |industry|}}
+              <option value={{industry}}></option>
+            {{/each}}
+          </datalist>
         </div>
         <div class="professional-network-field">
           <label for="professional-network-directory-experience">Experience

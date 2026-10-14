@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 module ProfessionalNetwork
   class ImportsController < BaseController
+    requires_plugin ProfessionalNetwork::PLUGIN_NAME
     before_action :owner!
 
     def create
@@ -11,7 +12,10 @@ module ProfessionalNetwork
       upload.tempfile.rewind
       raise Discourse::InvalidParameters.new(:file) unless upload.tempfile.read(5) == "%PDF-"
       upload.tempfile.rewind
-      data = PdfParser.parse(PdfParser.extract_pdf(upload.tempfile))
+      # Route PDF-derived data through the same ProfileData checks hand-edited
+      # data gets via #update -- otherwise a draft confirmed unedited would
+      # write unbounded/unvalidated strings straight from a crafted PDF.
+      data = ProfileData.normalize(PdfParser.parse(PdfParser.extract_pdf(upload.tempfile)))
       draft = ImportDraft.create!(user_id: current_user.id, website_key: website_key, data: data)
       render json: { id: draft.id, website_key: draft.website_key, status: draft.status, preview: draft.data }
     rescue ArgumentError => e
@@ -44,6 +48,7 @@ module ProfessionalNetwork
         # The member-reviewed draft replaces the previous imported profile.
         # Existing data is retained if no new value is provided.
         profile.data = profile.data.merge(draft.data)
+        profile.reviewed_at = Time.current
         profile.save!
         draft.update!(status: "confirmed")
       end

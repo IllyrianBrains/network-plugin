@@ -12,6 +12,9 @@ const ProfessionalNetworkGraphLegend = <template>
     <span><span
         class="professional-network-graph__dot professional-network-graph__dot--field"
       ></span>Field of expertise</span>
+    <span><span
+        class="professional-network-graph__dot professional-network-graph__dot--group"
+      ></span>Group</span>
   </div>
 </template>;
 

@@ -31,8 +31,9 @@
   }
 
   button:hover {
-    border-color: var(--tertiary);
+    border-color: var(--pn-accent);
   }
+
   strong {
     font-size: var(--font-up-2);
   }
@@ -48,7 +49,7 @@
   border-top: 1px solid var(--pn-border);
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .professional-network-account-type__choices {
     grid-template-columns: 1fr;
   }

@@ -114,8 +114,8 @@ export default class ProfessionalNetworkEditorNetworkState extends ProfessionalN
   }
 
   @action
-  changeBusinessUsername(event) {
-    this.businessUsername = event.target.value;
+  changeOrganizationUsernames(event) {
+    this.organizationUsernamesInput = event.target.value;
   }
 
   @action
@@ -137,28 +137,32 @@ export default class ProfessionalNetworkEditorNetworkState extends ProfessionalN
   changeServiceField(index, field, event) {
     const value = event.target.value;
     this.services = this.services.map((offering, i) =>
-      i === index ? { ...offering, [field]: value } : offering
+      i === index ? { ...offering, [field]: value } : offering,
     );
   }
 
   @action
   toggleMentoringInterest(value) {
     this.mentoringInterests = toggle(this.mentoringInterests, value);
+    this.fieldErrors = { ...this.fieldErrors, mentoring_interests: null };
   }
 
   @action
   toggleMentoringWantedType(value) {
     this.mentoringWantedTypes = toggle(this.mentoringWantedTypes, value);
+    this.fieldErrors = { ...this.fieldErrors, mentoring_wanted_types: null };
   }
 
   @action
   toggleMentoringProvidedType(value) {
     this.mentoringProvidedTypes = toggle(this.mentoringProvidedTypes, value);
+    this.fieldErrors = { ...this.fieldErrors, mentoring_provided_types: null };
   }
 
   @action
   changeMentoringNote(event) {
     this.mentoringNote = event.target.value;
+    this.fieldErrors = { ...this.fieldErrors, mentoring_note: null };
   }
 
   @action

@@ -20,4 +20,7 @@ export default function () {
   this.route("professional-network-recommendations", {
     path: "/network/recommendations",
   });
+  this.route("professional-network-admin", {
+    path: "/network/admin",
+  });
 }

@@ -2,6 +2,43 @@ plugins:
   professional_network_enabled:
     default: true
     client: false
+  professional_network_name:
+    default: "Professional Network"
+    type: string
+    client: true
+  professional_network_color:
+    default: "#0A66C2"
+    type: color
+    validator: "CssColorValidator"
+    client: true
+  professional_network_profile_label_color:
+    default: "#0A66C2"
+    type: color
+    validator: "CssColorValidator"
+    client: true
+  professional_network_linkedin_color:
+    default: "#0A66C2"
+    type: color
+    validator: "CssColorValidator"
+    client: true
+  professional_network_background_color:
+    default: "#F5F9FD"
+    type: color
+    validator: "CssColorValidator"
+    client: true
+  professional_network_card_color:
+    default: "#FFFFFF"
+    type: color
+    validator: "CssColorValidator"
+    client: true
+  professional_network_border_color:
+    default: "#D7E2EC"
+    type: color
+    validator: "CssColorValidator"
+    client: true
+  professional_network_auto_contrast:
+    default: true
+    client: true
   professional_network_category_id:
     default: 0
     type: integer

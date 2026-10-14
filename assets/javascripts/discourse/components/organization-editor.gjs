@@ -108,7 +108,7 @@ const ProfessionalNetworkOrganizationEditor = <template>
             "All changes saved."
           }}</small></div><div class="professional-network-save-bar__actions"><a
           class="professional-network-public-profile-link"
-          href="/u/{{@editor.currentUser.username}}/professional-network"
+          href="/u/{{@editor.targetUsername}}/professional-profile"
         >View public profile</a><button
           class="btn btn-primary"
           disabled={{@editor.loading}}

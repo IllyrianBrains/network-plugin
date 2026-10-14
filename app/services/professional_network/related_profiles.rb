@@ -28,14 +28,17 @@ module ProfessionalNetwork
     end
 
     def results
+      hidden_user_ids = RecommendationFeedback.for_website(@profile.website_key)
+        .where(user_id: @profile.user_id, hidden: true).select(:recommended_user_id)
       candidates = Profile.published.people.for_website(@profile.website_key)
-        .where.not(id: @profile.id).includes(user: :user_option).to_a
+        .where.not(id: @profile.id).where.not(user_id: hidden_user_ids)
+        .includes(user: :user_option).to_a
       matches = candidates.filter_map do |candidate|
         reasons = reasons_for(candidate)
         cosine = ProfileSimilarity.new(@profile, candidate).score
         next if reasons.empty? && cosine < MIN_COSINE_MATCH
 
-        { profile: candidate, score: final_score(reasons, cosine),
+        { profile: candidate, score: final_score(reasons, cosine, candidate),
           reasons: display_reasons(reasons, cosine) }
       end
 
@@ -51,18 +54,26 @@ module ProfessionalNetwork
     end
 
     def fallback_match(profile)
-      { profile: profile, score: 0.0, reasons: ["Expand your professional network"] }
+      { profile: profile, score: 0.0,
+        reasons: ["Discover a new connection in #{SiteSetting.professional_network_name}"] }
     end
 
-    # Scores are percentages. Interaction quality is reserved until the
-    # plugin has a consented introduction-outcome signal; it is zero today.
-    def final_score(reasons, cosine)
+    # Scores are percentages. Interaction quality only uses an explicit
+    # helpful rating after the member requested an introduction.
+    def final_score(reasons, cosine, candidate)
       weighted_rules = reasons.sum { |reason| reason[:weight] * priority_multiplier(reason[:category]) }
       rule_score = [weighted_rules / MAX_RULE_SCORE, 1.0].min
       weighted_cosine = [cosine * priority_multiplier("background"), 1.0].min
-      interaction_quality = 0.0
+      interaction_quality = interaction_quality(candidate)
       ((RULE_WEIGHT * rule_score + COSINE_WEIGHT * weighted_cosine +
         INTERACTION_WEIGHT * interaction_quality) * 100).round(1)
+    end
+
+    def interaction_quality(candidate)
+      RecommendationFeedback.for_website(@profile.website_key)
+        .where(user_id: @profile.user_id, recommended_user_id: candidate.user_id, helpful: true)
+        .where.not(introduction_topic_id: nil)
+        .exists? ? 1.0 : 0.0
     end
 
     def display_reasons(reasons, cosine)

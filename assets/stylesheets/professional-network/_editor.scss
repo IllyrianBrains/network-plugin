@@ -1,13 +1,13 @@
-.professional-network-section-toggle {
-  display: flex;
-  grid-column: 2;
-  justify-content: flex-end;
-  margin-top: 1rem;
-
-  button {
-    color: var(--pn-accent);
-    font-weight: 600;
+.professional-network-editor > header {
+  .professional-network-panel__eyebrow {
+    color: var(--pn-profile-label-color, var(--pn-accent));
   }
+}
+
+.professional-network-section-toggle {
+  color: var(--pn-accent);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .professional-network-admin-edit-notice {
@@ -107,6 +107,20 @@
   &[open] summary {
     border-bottom: 1px solid var(--pn-border);
   }
+
+  &.has-error {
+    border-color: var(--danger);
+
+    > summary {
+      color: var(--danger);
+    }
+  }
+}
+
+.professional-network-field-error {
+  margin: 0.5rem 0 0;
+  color: var(--danger);
+  font-weight: 600;
 }
 
 .professional-network-form-section__body {
@@ -118,6 +132,26 @@
 .professional-network-form-section__body:not(.professional-network-services) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
+}
+
+.professional-network-field-group {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+
+  &.is-wide {
+    grid-column: 1 / -1;
+  }
+
+  > .professional-network-field-group__label {
+    font-weight: 600;
+  }
+
+  > .professional-network-field-group__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
 }
 
 .professional-network-field {
@@ -202,20 +236,15 @@
 }
 
 .professional-network-save-bar {
-  position: sticky;
-  z-index: 3;
-  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  grid-column: 2;
-  margin: 1.5rem -1.5rem -1.5rem;
+  grid-column: 1 / -1;
+  margin: 2.5rem -1.5rem -1.5rem;
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--pn-border);
-  background: color-mix(in srgb, var(--secondary) 94%, transparent);
-  box-shadow: 0 -0.4rem 1rem rgb(0 0 0 / 8%);
-  backdrop-filter: blur(8px);
+  background: var(--secondary);
 
   > div {
     display: grid;

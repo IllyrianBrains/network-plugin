@@ -20,6 +20,28 @@
   }
 }
 
+.professional-network-recommendations__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.professional-network-recommendations__hidden {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--pn-border);
+  border-radius: var(--ib-radius, 0.75rem);
+  background: var(--secondary);
+
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+}
+
 .professional-network-recommendations__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
@@ -78,6 +100,13 @@
   li + li {
     margin-top: 0.35rem;
   }
+}
+
+.professional-network-recommendation-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
 }
 
 .professional-network-recommendations__placeholder {

@@ -36,13 +36,13 @@ module ProfessionalNetwork
         experience_level certifications
         experience education pronouns github_url twitter_url open_to_work hiring volunteering honors
         availability open_to_consulting freelance_rate minimum_project_size services
-        business_username
+        business_username organization_usernames
         industry current_role can_help_with looking_for ideal_connection preferred_locations
         availability_timing contact_preference meeting_preference open_to_introductions
         open_to_collaboration open_to_speaking open_to_volunteering open_to_relocation
         organization_type organization_type_other sector stage organization_locations mission organization_needs
         organization_offerings organization_opportunities collaboration_interests contact_url
-        organization_projects organization_opportunity_details logo_url instagram_url
+        organization_projects organization_opportunity_details organization_contacts logo_url instagram_url
       ]
       ProfileData.normalize(data.slice(*allowed))
     end

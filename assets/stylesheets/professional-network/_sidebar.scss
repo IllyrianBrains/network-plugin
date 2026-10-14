@@ -12,14 +12,27 @@ li[data-list-item-name="new-chat-dm"] {
 // Tags, then plugin-registered sections -- there's no plugin API to control
 // this (addSidebarSection just pushes onto an array rendered after the
 // built-in sections). All of those default to flex order 0, so pushing just
-// Categories and Tags to positive orders pulls the Illyrian Brains section
-// (which stays at the default order 0, tied with and DOM-ordered after the
-// custom sections) ahead of Categories/Tags without passing Topics/Community
-// or any user-added custom section.
+// Categories, Tags, and the chat plugin's own "Direct Messages" section to
+// positive orders pulls the member network section (which stays at the
+// default order 0, tied with and DOM-ordered after the custom sections)
+// ahead of Categories/Tags/DMs without passing Topics/Community or any
+// user-added custom section. "chat-dms" is the chat plugin's standalone
+// sidebar section (registered the same way ours is, via addSidebarSection),
+// not the "My Messages" link inside the seeded Community section above.
+//
+// No separate divider rule is needed between the network section and
+// Categories -- core already draws a `border-bottom` on every
+// `.sidebar-section-wrapper` (sidebar-section.scss), so adding our own here
+// doubled up into two lines back to back. The existing line between
+// sections is the divider.
 .sidebar-sections > [data-section-name="categories"] {
   order: 1;
 }
 
 .sidebar-sections > [data-section-name="tags"] {
   order: 2;
+}
+
+.sidebar-sections > [data-section-name="chat-dms"] {
+  order: 3;
 }

@@ -1,0 +1,24 @@
+.professional-network-panel,
+.professional-network-editor,
+.professional-network-graph,
+.professional-network-recommendations,
+.professional-network-directory,
+.professional-network-share-page,
+.professional-network-account-type,
+.professional-network-admin {
+  .btn-primary {
+    border-color: var(--pn-accent);
+    background: var(--pn-accent);
+    color: var(--pn-accent-contrast, #fff);
+  }
+}
+
+// Keep LinkedIn branding independently configurable from the network UI.
+a[data-link-name="professional-network-share"] .prefix-icon {
+  color: var(--pn-site-linkedin-color, #0a66c2);
+}
+
+.professional-network-linkedin-link {
+  border-color: var(--pn-site-linkedin-color, #0a66c2);
+  color: var(--pn-site-linkedin-color, #0a66c2);
+}

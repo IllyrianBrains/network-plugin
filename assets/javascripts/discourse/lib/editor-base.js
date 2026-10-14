@@ -21,7 +21,21 @@ export function parseList(value) {
       value
         .split(",")
         .map((item) => item.trim())
-        .filter(Boolean)
+        .filter(Boolean),
+    ),
+  ];
+}
+
+// Certification names frequently contain commas (e.g. "AWS Certified
+// Solutions Architect, Associate"), so they're separated by semicolons
+// instead of commas to avoid splitting a single certification in two.
+export function parseSemicolonList(value) {
+  return [
+    ...new Set(
+      value
+        .split(";")
+        .map((item) => item.trim())
+        .filter(Boolean),
     ),
   ];
 }
@@ -44,6 +58,7 @@ export default class ProfessionalNetworkEditorBase extends Component {
   @tracked loading = false;
   @tracked dirty = false;
   @tracked error = null;
+  @tracked fieldErrors = {};
   @tracked message = null;
   @tracked fieldsOfExpertiseInput = "";
   @tracked skillsInput = "";
@@ -83,7 +98,7 @@ export default class ProfessionalNetworkEditorBase extends Component {
   @tracked openToConsulting = false;
   @tracked pricing = "";
   @tracked minimumEngagement = "";
-  @tracked businessUsername = "";
+  @tracked organizationUsernamesInput = "";
   @tracked services = [];
 
   constructor() {
@@ -130,7 +145,7 @@ export default class ProfessionalNetworkEditorBase extends Component {
   get completionPercent() {
     const checks = this.completionItems.map((item) => item.complete);
     return Math.round(
-      (checks.filter((value) => Boolean(value)).length / checks.length) * 100
+      (checks.filter((value) => Boolean(value)).length / checks.length) * 100,
     );
   }
 
@@ -242,7 +257,7 @@ export default class ProfessionalNetworkEditorBase extends Component {
       {
         label: "Projects",
         complete: (this.profileData.organization_projects || []).some(
-          (project) => project.name
+          (project) => project.name,
         ),
       },
       {

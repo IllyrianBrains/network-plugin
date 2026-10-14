@@ -58,6 +58,7 @@ RSpec.describe ProfessionalNetwork::RelatedProfiles do
   end
 
   it "falls back to other published members when there are no strong matches" do
+    SiteSetting.professional_network_name = "Founders Circle"
     mentee_profile.update!(data: {})
     mentor_profile.update!(data: {})
     peer_profile.update!(data: {})
@@ -69,7 +70,9 @@ RSpec.describe ProfessionalNetwork::RelatedProfiles do
     results = described_class.new(mentee_profile).results
 
     expect(results).not_to be_empty
-    expect(results).to all(include(score: 0.0, reasons: ["Expand your professional network"]))
+    expect(results).to all(
+      include(score: 0.0, reasons: ["Discover a new connection in Founders Circle"]),
+    )
   end
 
   it "matches a job seeker with someone hiring" do
@@ -130,13 +133,38 @@ RSpec.describe ProfessionalNetwork::RelatedProfiles do
     mentee_profile.update!(data: { "city" => "Berlin", "fields_of_expertise" => ["Robotics"] })
     stranger_profile.update!(data: { "fields_of_expertise" => ["Robotics"] })
 
+    default_result = described_class.new(mentee_profile).results.find do |result|
+      result[:profile] == city_profile
+    end
+
     set_aspirations(
       mentee_user,
       "recommendation_priorities" => %w[location help mentoring opportunities background career],
     )
-    results = described_class.new(mentee_profile).results
+    prioritized_result = described_class.new(mentee_profile).results.find do |result|
+      result[:profile] == city_profile
+    end
 
-    expect(results.index { |result| result[:profile] == city_profile })
-      .to be < results.index { |result| result[:profile] == stranger_profile }
+    expect(prioritized_result[:score]).to be > default_result[:score]
+  end
+
+  it "excludes recommendations the member hid" do
+    ProfessionalNetwork::RecommendationFeedback.create!(
+      website_key: "default", user: mentee_user, recommended_user: mentor_user, hidden: true,
+    )
+
+    expect(described_class.new(mentee_profile).results.map { |result| result[:profile] })
+      .not_to include(mentor_profile)
+  end
+
+  it "uses helpful introduction feedback as a consented scoring signal" do
+    topic = Fabricate(:private_message_topic, user: mentee_user)
+    ProfessionalNetwork::RecommendationFeedback.create!(
+      website_key: "default", user: mentee_user, recommended_user: mentor_user,
+      helpful: true, introduction_topic: topic,
+    )
+
+    result = described_class.new(mentee_profile).results.find { |match| match[:profile] == mentor_profile }
+    expect(result[:score]).to be >= 10
   end
 end

@@ -4,13 +4,18 @@ module ProfessionalNetwork
   # Builds the node/edge graph behind the website's network visualization: member and
   # organization profiles, linked to shared city/field (or city/sector) hubs, plus a
   # direct member -> organization edge where the member's profile names that business.
+  # Members are also linked to the (public, non-automatic) Discourse groups they belong to.
   # Public (published) profiles only.
   class NetworkGraph
     MAX_MEMBERS = 300
     MAX_ORGANIZATIONS = 150
+    # Anonymous visitors get a teaser of the member network, not the whole thing --
+    # organizations stay uncapped since that directory is public on its own.
+    PREVIEW_MEMBER_LIMIT = 20
 
-    def initialize(website_key:)
+    def initialize(website_key:, preview: false)
       @website_key = website_key
+      @preview = preview
     end
 
     def data
@@ -32,7 +37,10 @@ module ProfessionalNetwork
         add_edge(nodes, edges, node_index, "field", sector, "organization:#{username}") if sector.present?
       end
 
-      people.each do |profile|
+      member_profiles = people.to_a
+      groups_by_user_id = MemberGroups.names_by_user_id(member_profiles.map(&:user_id))
+
+      member_profiles.each do |profile|
         username = profile.user.username
         nodes << { id: "member:#{username}", type: "member", label: profile.data["name"].presence || username,
                     username: username }
@@ -44,23 +52,45 @@ module ProfessionalNetwork
           add_edge(nodes, edges, node_index, "field", field, "member:#{username}")
         end
 
-        # Only link to an organization actually present in this graph (published, same
-        # website) -- a business_username that doesn't resolve shouldn't fabricate a node.
-        org_username = organization_usernames[profile.data["business_username"].to_s.strip.downcase]
-        edges << { source: "member:#{username}", target: "organization:#{org_username}" } if org_username
+        groups_by_user_id[profile.user_id].each do |group_name|
+          add_edge(nodes, edges, node_index, "group", group_name, "member:#{username}")
+        end
+
+        linked_organization_usernames(profile).each do |linked_username|
+          org_username = organization_usernames[linked_username.downcase]
+          edges << { source: "member:#{username}", target: "organization:#{org_username}" } if org_username
+        end
       end
 
-      { nodes: nodes, edges: edges }
+      {
+        nodes: nodes, edges: edges, preview: @preview,
+        member_limit: @preview ? PREVIEW_MEMBER_LIMIT : nil,
+        total_members: total_member_count,
+      }
     end
 
     private
 
     def people
-      Profile.published.people.for_website(@website_key).includes(:user).limit(MAX_MEMBERS)
+      Profile.published.people.for_website(@website_key).includes(:user)
+        .limit(@preview ? PREVIEW_MEMBER_LIMIT : MAX_MEMBERS)
+    end
+
+    def total_member_count
+      @total_member_count ||= Profile.published.people.for_website(@website_key).count
     end
 
     def organizations
       Profile.published.organizations.for_website(@website_key).includes(:user).limit(MAX_ORGANIZATIONS)
+    end
+
+    def linked_organization_usernames(profile)
+      usernames = profile.data["organization_usernames"]
+      if usernames.present?
+        return Array(usernames).map { |username| username.to_s.strip }.reject(&:blank?)
+      end
+
+      [profile.data["business_username"].to_s.strip].reject(&:blank?)
     end
 
     # `count` is how many members/organizations share that city/field -- the frontend uses

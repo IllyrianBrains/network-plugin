@@ -22,6 +22,30 @@ const ProfessionalNetworkEditorSettings = <template>
     </section>
 
     <section class="professional-network-settings__section">
+      <div><h3>Profile freshness</h3><p>Confirm that the information in this
+          profile is still accurate.</p></div>
+      <button
+        class="btn btn-default"
+        type="button"
+        {{on "click" @editor.confirmProfileAccurate}}
+      >Still accurate</button>
+    </section>
+
+    <section class="professional-network-settings__section">
+      <div><h3>Download your data</h3><p>Export the complete profile, including
+          private preferences, as JSON.</p></div>
+      <a class="btn btn-default" href="/network/profile/export">Export JSON</a>
+    </section>
+
+    {{#if @editor.currentUser.admin}}
+      <section class="professional-network-settings__section">
+        <div><h3>Network administration</h3><p>Manage cities and review network
+            health.</p></div>
+        <a class="btn btn-default" href="/network/admin">Open dashboard</a>
+      </section>
+    {{/if}}
+
+    <section class="professional-network-settings__section">
       <div>
         <h3>Profile type</h3>
       </div>

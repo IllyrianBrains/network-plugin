@@ -8,9 +8,11 @@ module ProfessionalNetwork
     LIST_FIELDS = %w[
       fields_of_expertise skills languages certifications preferred_locations organization_locations
       organization_needs organization_offerings organization_opportunities collaboration_interests
+      organization_usernames
     ].freeze
     COLLECTION_FIELDS = %w[
-      experience education volunteering honors services organization_projects organization_opportunity_details
+      experience education volunteering honors services organization_projects
+      organization_opportunity_details organization_contacts
     ].freeze
     URL_FIELDS = %w[
       website linkedin_url avatar profile_url github_url twitter_url portfolio_url calendar_url contact_url
@@ -49,6 +51,8 @@ module ProfessionalNetwork
       end.tap do |normalized|
         validate_urls!(normalized)
         validate_opportunities!(normalized["organization_opportunity_details"])
+        validate_projects!(normalized["organization_projects"])
+        validate_contacts!(normalized["organization_contacts"])
       end
     end
 
@@ -60,6 +64,13 @@ module ProfessionalNetwork
       if data["business_username"].present?
         invalid!("business_username") unless data["business_username"].is_a?(String) && data["business_username"].match?(FORUM_USERNAME)
       end
+      organization_usernames = data["organization_usernames"]
+      invalid_usernames =
+        organization_usernames.is_a?(Array) &&
+          organization_usernames.any? do |username|
+            !username.is_a?(String) || !username.match?(FORUM_USERNAME)
+          end
+      invalid!("organization_usernames") if invalid_usernames
       if LIST_FIELDS.any? { |key| Array(data[key]).length > LIST_LIMIT } ||
           COLLECTION_FIELDS.any? { |key| Array(data[key]).length > ENTRY_LIMIT }
         raise Discourse::InvalidParameters.new(:data)
@@ -105,21 +116,39 @@ module ProfessionalNetwork
       end
     end
 
-    def self.validate_date!(value)
-      return if value.blank?
-      invalid!("organization_opportunity_details") unless value.is_a?(String) && value.match?(/\A\d{4}-\d{2}-\d{2}\z/)
-      Date.iso8601(value)
-    rescue Date::Error
-      invalid!("organization_opportunity_details")
+    def self.validate_projects!(projects)
+      Array(projects).each do |project|
+        invalid!("organization_projects") unless project.is_a?(Hash) && project["name"].present?
+        if project["status"].present?
+          invalid!("organization_projects") if %w[planned active completed paused].exclude?(project["status"])
+        end
+        validate_date!(project["starts_on"], "organization_projects")
+        validate_date!(project["ends_on"], "organization_projects")
+      end
     end
 
-    def self.validate_nested_url!(value)
+    def self.validate_contacts!(contacts)
+      Array(contacts).each do |contact|
+        invalid!("organization_contacts") unless contact.is_a?(Hash) && contact["name"].present?
+        validate_nested_url!(contact["url"], "organization_contacts")
+      end
+    end
+
+    def self.validate_date!(value, key = "organization_opportunity_details")
       return if value.blank?
-      invalid!("organization_opportunity_details") unless value.is_a?(String)
+      invalid!(key) unless value.is_a?(String) && value.match?(/\A\d{4}-\d{2}-\d{2}\z/)
+      Date.iso8601(value)
+    rescue Date::Error
+      invalid!(key)
+    end
+
+    def self.validate_nested_url!(value, key = "organization_opportunity_details")
+      return if value.blank?
+      invalid!(key) unless value.is_a?(String)
       uri = URI.parse(value)
-      invalid!("organization_opportunity_details") unless %w[http https].include?(uri.scheme) && uri.host.present? && uri.userinfo.nil?
+      invalid!(key) unless %w[http https].include?(uri.scheme) && uri.host.present? && uri.userinfo.nil?
     rescue URI::InvalidURIError
-      invalid!("organization_opportunity_details")
+      invalid!(key)
     end
 
     def self.invalid!(key)
@@ -127,6 +156,7 @@ module ProfessionalNetwork
     end
 
     private_class_method :validate_shape!, :normalize_array, :normalize_hash, :validate_urls!,
-                         :validate_opportunities!, :validate_date!, :validate_nested_url!, :invalid!
+                         :validate_opportunities!, :validate_projects!, :validate_contacts!,
+                         :validate_date!, :validate_nested_url!, :invalid!
   end
 end

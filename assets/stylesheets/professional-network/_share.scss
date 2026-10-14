@@ -12,8 +12,8 @@
   border-bottom: 1px solid var(--pn-border);
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, #0a66c2 14%, var(--secondary)),
-    var(--secondary) 65%
+    color-mix(in srgb, var(--pn-accent) 14%, var(--pn-card)),
+    var(--pn-card) 65%
   );
 
   h1,
@@ -42,9 +42,10 @@
   height: 3.75rem;
   place-items: center;
   border-radius: 0.75rem;
-  background: #0a66c2;
-  box-shadow: 0 0.5rem 1.25rem rgb(10 102 194 / 22%);
-  color: #fff;
+  background: var(--pn-accent);
+  box-shadow: 0 0.5rem 1.25rem
+    color-mix(in srgb, var(--pn-accent) 22%, transparent);
+  color: var(--pn-linkedin-contrast, #fff);
   font-family: Arial, sans-serif;
   font-size: 2rem;
   font-weight: 700;
@@ -62,7 +63,7 @@
   padding: clamp(1rem, 3vw, 1.5rem);
   border: 1px solid var(--pn-border);
   border-radius: 0.75rem;
-  background: var(--secondary);
+  background: var(--pn-card);
   box-shadow: 0 0.2rem 0.75rem rgb(0 0 0 / 4%);
 
   > header {
@@ -78,8 +79,8 @@
       height: 1.75rem;
       place-items: center;
       border-radius: 50%;
-      background: color-mix(in srgb, #0a66c2 12%, var(--secondary));
-      color: #0a66c2;
+      background: color-mix(in srgb, var(--pn-accent) 12%, var(--secondary));
+      color: var(--pn-accent);
       font-size: var(--font-down-1);
       font-weight: 700;
     }

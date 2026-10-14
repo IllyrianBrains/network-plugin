@@ -1,0 +1,90 @@
+.professional-network-admin {
+  max-width: 960px;
+
+  > header h2 {
+    font-family: var(--pn-display-font);
+  }
+}
+
+.professional-network-admin__health,
+.professional-network-admin__cities {
+  padding: 1.25rem;
+  margin-top: 1rem;
+  border: 1px solid var(--pn-border);
+  border-radius: 0.75rem;
+  background: var(--pn-card);
+  box-shadow: 0 0.2rem 0.75rem rgb(0 0 0 / 4%);
+
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.professional-network-admin__health dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+
+  div {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background: var(--pn-surface);
+  }
+
+  dt {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  dd {
+    margin: 0.25rem 0 0;
+    font-size: var(--font-up-2);
+    font-weight: 700;
+  }
+}
+
+.professional-network-admin__form-heading {
+  margin: 0 0 0.75rem;
+  font-weight: 700;
+}
+
+.professional-network-admin__city-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+
+  .is-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.professional-network-admin__form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.professional-network-admin__city-list {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+
+  article {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--pn-border);
+    border-radius: 0.5rem;
+  }
+
+  article > div {
+    display: grid;
+    flex: 1;
+  }
+
+  small {
+    color: var(--primary-medium);
+  }
+}
